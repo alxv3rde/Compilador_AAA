@@ -22,11 +22,11 @@ namespace Compilador_AAA
         {
             InitializeComponent();
             this.MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
-            EditorLV.Items.Add("hehe");
-            EditorLV.Items.Add("hehe");
-            EditorLV.Items.Add("hehe");
-            EditorLV.Items.Add("hehe");
-            EditorLV.Items.Add("hehe");
+            EditorLV.Items.Add("Hehe");
+            EditorLV.Items.Add("Hehe");
+            EditorLV.Items.Add("Hehe");
+            EditorLV.Items.Add("Hehe");
+            EditorLV.Items.Add("Hehe");
             LinesLV.Items.Add("1");
             LinesLV.Items.Add("2");
             LinesLV.Items.Add("3");

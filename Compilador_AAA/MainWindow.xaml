@@ -32,7 +32,27 @@
                 <ColumnDefinition />
                 <ColumnDefinition Width="150" />
             </Grid.ColumnDefinitions>
-
+            <StackPanel Orientation="Horizontal"
+                        VerticalAlignment="Center"
+                        Margin="10,0,0,0">
+                <Menu Background="Transparent"
+                      Foreground="#cccccc"
+                      VerticalAlignment="Center"
+                      FontSize="13">
+                    <MenuItem Header="Archivos"
+                              Style="{StaticResource MenuItemsDarkBG}">
+                        <MenuItem Header="Lenguaje original" />
+                        <MenuItem Header="Lenguaje traducido" />
+                    </MenuItem>
+                    <MenuItem Header="Ayuda"
+                              Style="{StaticResource MenuItemsDarkBG}">
+                        <MenuItem Header="Palabras reservadas" />
+                        <MenuItem Header="Ejemplos de mi lenguaje" />
+                    </MenuItem>
+                    <MenuItem Header="Acerca de"
+                              Style="{StaticResource MenuItemsDarkBG}" />
+                </Menu>
+            </StackPanel>
             <StackPanel Grid.Column="1"
                         x:Name="ControlBar"
                         Orientation="Horizontal"
@@ -63,7 +83,7 @@
             </StackPanel>
         </Grid>
         <Grid Grid.Row="1"
-              Margin="10">
+              Margin="10,5">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition Width="100" />
@@ -74,14 +94,15 @@
                     <RowDefinition Height="22" />
                     <RowDefinition />
                 </Grid.RowDefinitions>
-                
+
                 <Grid Grid.Row="0">
                     <Border Background="{StaticResource BrightDarkGrayMainBG}"
                             BorderBrush="{StaticResource BorderDarkGrayMainBG}"
                             BorderThickness="2,1,2,2" />
-                    <StackPanel Grid.Row="0" VerticalAlignment="Center"
+                    <StackPanel Grid.Row="0"
+                                VerticalAlignment="Center"
                                 Orientation="Horizontal"
-                                Margin="3,0" >
+                                Margin="3,0">
 
                         <fa:IconImage Icon="Python"
                                       Height="16"
@@ -90,7 +111,8 @@
                         <Label Content="Python"
                                Margin="0,-7"
                                FontWeight="Normal"
-                               FontSize="13" Foreground="White" />
+                               FontSize="13"
+                               Foreground="White" />
                     </StackPanel>
                 </Grid>
                 <Grid Grid.Row="1">
@@ -117,7 +139,68 @@
                                   Margin="0,2,0,0"
                                   FontWeight="Medium"
                                   BorderBrush="{StaticResource GrayBG}"
-                                  BorderThickness="0,0,1,0" />
+                                  BorderThickness="0,0,1,0">
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="Background"
+                                            Value="Transparent" />
+                                    <Setter Property="HorizontalAlignment"
+                                            Value="Center" />
+                                    <Setter Property="HorizontalContentAlignment"
+                                            Value="Center" />
+                                    <Setter Property="BorderBrush"
+                                            Value="Transparent" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ListViewItem">
+                                                <Border Name="Border"
+                                                        BorderThickness="2"
+                                                        Background="{TemplateBinding Background}"
+                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                        SnapsToDevicePixels="True">
+                                                    <ContentPresenter />
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver"
+                                                             Value="True">
+                                                        <Setter TargetName="Border"
+                                                                Property="Background">
+                                                            <Setter.Value>
+                                                                <ImageBrush />
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                        <Setter TargetName="Border"
+                                                                Property="BorderBrush"
+                                                                Value="Transparent" />
+                                                    </Trigger>
+                                                    <Trigger Property="IsSelected"
+                                                             Value="True">
+                                                        <Setter TargetName="Border"
+                                                                Property="Background"
+                                                                Value="transparent" />
+                                                        <Setter TargetName="Border"
+                                                                Property="BorderBrush"
+                                                                Value="transparent" />
+                                                        
+                                                    </Trigger>
+                                                    <Trigger Property="IsEnabled"
+                                                             Value="False">
+                                                        <Setter TargetName="Border"
+                                                                Property="Background"
+                                                                Value="Transparent" />
+                                                        <Setter TargetName="Border"
+                                                                Property="BorderBrush"
+                                                                Value="Transparent" />
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                        </ListView>
+
+
                         <ListView Grid.Column="1"
                                   x:Name="EditorLV"
                                   Background="{StaticResource DarkGrayMainBG}"
@@ -127,7 +210,64 @@
                                   Foreground="White"
                                   FontSize="13"
                                   FontWeight="Medium"
-                                  Margin="5,2,0,0" ScrollViewer.HorizontalScrollBarVisibility="Auto"/>
+                                  Margin="5,2,0,0"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="Background"
+                                            Value="Transparent" />
+                                    <Setter Property="BorderBrush"
+                                            Value="Transparent" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ListViewItem">
+                                                <Border Name="Border"
+                                                        Background="{TemplateBinding Background}"
+                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                        BorderThickness="2"
+                                                        SnapsToDevicePixels="True">
+                                                    <ContentPresenter />
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver"
+                                                             Value="True">
+                                                        <Setter TargetName="Border"
+                                                                Property="Background">
+                                                            <Setter.Value>
+                                                                <ImageBrush />
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                        <Setter TargetName="Border"
+                                                                Property="BorderBrush"
+                                                                Value="Transparent" />
+                                                    </Trigger>
+                                                    <Trigger Property="IsSelected"
+                                                             Value="True">
+                                                        <Setter TargetName="Border"
+                                                                Property="Background"
+                                                                Value="transparent" />
+                                                        <Setter TargetName="Border"
+                                                                Property="BorderBrush"
+                                                                Value="{StaticResource GrayBG}" />
+                                                    </Trigger>
+                                                    <Trigger Property="IsEnabled"
+                                                             Value="False">
+                                                        <Setter TargetName="Border"
+                                                                Property="Background"
+                                                                Value="Transparent" />
+                                                        <Setter TargetName="Border"
+                                                                Property="BorderBrush"
+                                                                Value="Transparent" />
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                        </ListView>
+
+
                     </Grid>
 
                 </Grid>
