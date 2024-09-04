@@ -12,8 +12,8 @@
         UseLayoutRounding="True"
         ResizeMode="CanResizeWithGrip"
         Title="MainView"
-        Height="720"
-        Width="1360"
+        Height="620"
+        Width="1260"
         RenderOptions.BitmapScalingMode="HighQuality"
         WindowStartupLocation="CenterScreen">
     <Grid Name="MainPanel"
@@ -39,14 +39,18 @@
                       Foreground="#cccccc"
                       VerticalAlignment="Center"
                       FontSize="13">
+                    <MenuItem Header="Traductor"
+                            Style="{StaticResource MenuItemsDarkBG}" x:Name="TraductorMenu" PreviewMouseLeftButtonDown="TraductorMenu_PreviewMouseLeftButtonDown">
+                    </MenuItem>
                     <MenuItem Header="Archivos"
                               Style="{StaticResource MenuItemsDarkBG}">
                         <MenuItem Header="Lenguaje original" />
                         <MenuItem Header="Lenguaje traducido" />
                     </MenuItem>
+
                     <MenuItem Header="Ayuda"
                               Style="{StaticResource MenuItemsDarkBG}">
-                        <MenuItem Header="Palabras reservadas" />
+                        <MenuItem x:Name="Palabras_Reservadas" Header="Palabras reservadas" PreviewMouseLeftButtonDown="Palabras_Reservadas_PreviewMouseLeftButtonDown" />
                         <MenuItem Header="Ejemplos de mi lenguaje" />
                     </MenuItem>
                     <MenuItem Header="Acerca de"
@@ -82,197 +86,6 @@
                 </Button>
             </StackPanel>
         </Grid>
-        <Grid Grid.Row="1"
-              Margin="10,5">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition />
-                <ColumnDefinition Width="100" />
-                <ColumnDefinition />
-            </Grid.ColumnDefinitions>
-            <Grid Grid.Column="0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="22" />
-                    <RowDefinition />
-                </Grid.RowDefinitions>
-
-                <Grid Grid.Row="0">
-                    <Border Background="{StaticResource BrightDarkGrayMainBG}"
-                            BorderBrush="{StaticResource BorderDarkGrayMainBG}"
-                            BorderThickness="2,1,2,2" />
-                    <StackPanel Grid.Row="0"
-                                VerticalAlignment="Center"
-                                Orientation="Horizontal"
-                                Margin="3,0">
-
-                        <fa:IconImage Icon="Python"
-                                      Height="16"
-                                      Width="16"
-                                      Foreground="White" />
-                        <Label Content="Python"
-                               Margin="0,-7"
-                               FontWeight="Normal"
-                               FontSize="13"
-                               Foreground="White" />
-                    </StackPanel>
-                </Grid>
-                <Grid Grid.Row="1">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="22" />
-                        <ColumnDefinition />
-                    </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0"
-                            Background="{StaticResource BrightDarkGrayMainBG}"
-                            BorderBrush="{StaticResource BorderDarkGrayMainBG}"
-                            BorderThickness="1,0,1,0" />
-                    <Grid Grid.Column="1">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="60" />
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
-                        <ListView x:Name="LinesLV"
-                                  Grid.Column="0"
-                                  Background="{StaticResource DarkGrayMainBG}"
-                                  FontFamily="Consolas"
-                                  Foreground="Gray"
-                                  FontSize="13"
-                                  HorizontalContentAlignment="Center"
-                                  Margin="0,2,0,0"
-                                  FontWeight="Medium"
-                                  BorderBrush="{StaticResource GrayBG}"
-                                  BorderThickness="0,0,1,0">
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem">
-                                    <Setter Property="Background"
-                                            Value="Transparent" />
-                                    <Setter Property="HorizontalAlignment"
-                                            Value="Center" />
-                                    <Setter Property="HorizontalContentAlignment"
-                                            Value="Center" />
-                                    <Setter Property="BorderBrush"
-                                            Value="Transparent" />
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="ListViewItem">
-                                                <Border Name="Border"
-                                                        BorderThickness="2"
-                                                        Background="{TemplateBinding Background}"
-                                                        BorderBrush="{TemplateBinding BorderBrush}"
-                                                        SnapsToDevicePixels="True">
-                                                    <ContentPresenter />
-                                                </Border>
-                                                <ControlTemplate.Triggers>
-                                                    <Trigger Property="IsMouseOver"
-                                                             Value="True">
-                                                        <Setter TargetName="Border"
-                                                                Property="Background">
-                                                            <Setter.Value>
-                                                                <ImageBrush />
-                                                            </Setter.Value>
-                                                        </Setter>
-                                                        <Setter TargetName="Border"
-                                                                Property="BorderBrush"
-                                                                Value="Transparent" />
-                                                    </Trigger>
-                                                    <Trigger Property="IsSelected"
-                                                             Value="True">
-                                                        <Setter TargetName="Border"
-                                                                Property="Background"
-                                                                Value="transparent" />
-                                                        <Setter TargetName="Border"
-                                                                Property="BorderBrush"
-                                                                Value="transparent" />
-                                                        
-                                                    </Trigger>
-                                                    <Trigger Property="IsEnabled"
-                                                             Value="False">
-                                                        <Setter TargetName="Border"
-                                                                Property="Background"
-                                                                Value="Transparent" />
-                                                        <Setter TargetName="Border"
-                                                                Property="BorderBrush"
-                                                                Value="Transparent" />
-                                                    </Trigger>
-                                                </ControlTemplate.Triggers>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </ListView.ItemContainerStyle>
-                        </ListView>
-
-
-                        <ListView Grid.Column="1"
-                                  x:Name="EditorLV"
-                                  Background="{StaticResource DarkGrayMainBG}"
-                                  BorderThickness="0"
-                                  SelectionMode="Single"
-                                  FontFamily="Consolas"
-                                  Foreground="White"
-                                  FontSize="13"
-                                  FontWeight="Medium"
-                                  Margin="5,2,0,0"
-                                  ScrollViewer.HorizontalScrollBarVisibility="Auto">
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem">
-                                    <Setter Property="Background"
-                                            Value="Transparent" />
-                                    <Setter Property="BorderBrush"
-                                            Value="Transparent" />
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="ListViewItem">
-                                                <Border Name="Border"
-                                                        Background="{TemplateBinding Background}"
-                                                        BorderBrush="{TemplateBinding BorderBrush}"
-                                                        BorderThickness="2"
-                                                        SnapsToDevicePixels="True">
-                                                    <ContentPresenter />
-                                                </Border>
-                                                <ControlTemplate.Triggers>
-                                                    <Trigger Property="IsMouseOver"
-                                                             Value="True">
-                                                        <Setter TargetName="Border"
-                                                                Property="Background">
-                                                            <Setter.Value>
-                                                                <ImageBrush />
-                                                            </Setter.Value>
-                                                        </Setter>
-                                                        <Setter TargetName="Border"
-                                                                Property="BorderBrush"
-                                                                Value="Transparent" />
-                                                    </Trigger>
-                                                    <Trigger Property="IsSelected"
-                                                             Value="True">
-                                                        <Setter TargetName="Border"
-                                                                Property="Background"
-                                                                Value="transparent" />
-                                                        <Setter TargetName="Border"
-                                                                Property="BorderBrush"
-                                                                Value="{StaticResource GrayBG}" />
-                                                    </Trigger>
-                                                    <Trigger Property="IsEnabled"
-                                                             Value="False">
-                                                        <Setter TargetName="Border"
-                                                                Property="Background"
-                                                                Value="Transparent" />
-                                                        <Setter TargetName="Border"
-                                                                Property="BorderBrush"
-                                                                Value="Transparent" />
-                                                    </Trigger>
-                                                </ControlTemplate.Triggers>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </ListView.ItemContainerStyle>
-                        </ListView>
-
-
-                    </Grid>
-
-                </Grid>
-            </Grid>
-
-        </Grid>
+        
     </Grid>
 </Window>

@@ -10,6 +10,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Compilador_AAA.Views;
 
 namespace Compilador_AAA
 {
@@ -22,16 +23,11 @@ namespace Compilador_AAA
         {
             InitializeComponent();
             this.MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
-            EditorLV.Items.Add("Hehe");
-            EditorLV.Items.Add("Hehe");
-            EditorLV.Items.Add("Hehe");
-            EditorLV.Items.Add("Hehe");
-            EditorLV.Items.Add("Hehe");
-            LinesLV.Items.Add("1");
-            LinesLV.Items.Add("2");
-            LinesLV.Items.Add("3");
-            LinesLV.Items.Add("4");
-            LinesLV.Items.Add("5");
+            TranslatorView translatorView = new TranslatorView();
+            Grid.SetRow(translatorView,1);
+            MainPanel.Children.Add(translatorView);
+
+
         }
 
         [DllImport("user32.dll")]
@@ -62,6 +58,25 @@ namespace Compilador_AAA
         private void btnMinimize_Click(object sender, RoutedEventArgs e)
         {
             this.WindowState = WindowState.Minimized;
+        }
+
+
+
+        private void Palabras_Reservadas_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            PalabrasReservadasView palabrasReservadasView = new PalabrasReservadasView();
+            MainPanel.Children.RemoveAt(1);
+            Grid.SetRow(palabrasReservadasView, 1);
+            MainPanel.Children.Add(palabrasReservadasView);
+
+        }
+
+        private void TraductorMenu_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            TranslatorView translatorView = new TranslatorView();
+            MainPanel.Children.RemoveAt(1);
+            Grid.SetRow(translatorView, 1);
+            MainPanel.Children.Add(translatorView);
         }
     }
 }
