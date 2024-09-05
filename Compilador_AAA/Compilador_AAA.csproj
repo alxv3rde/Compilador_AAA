@@ -10,14 +10,17 @@
 
   <ItemGroup>
     <None Remove="Resources\SVG\closesvg.png" />
+    <None Remove="Resources\SVG\translatec.png" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AvalonEdit" Version="6.3.0.90" />
     <PackageReference Include="FontAwesome.Sharp" Version="6.6.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Resource Include="Resources\SVG\closesvg.png" />
+    <Resource Include="Resources\SVG\translatec.png" />
   </ItemGroup>
 
 </Project>
