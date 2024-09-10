@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="Compilador_AAA.Views.TextEditor"
+﻿<UserControl xmlns:Controls="clr-namespace:Compilador_AAA.Controls"  x:Class="Compilador_AAA.Views.TextEditor"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -242,54 +242,65 @@
         </Style>
         
     </UserControl.Resources>
-    <Border BorderBrush="{StaticResource BorderDarkGrayMainBG}"
-            BorderThickness="0,0,1,1">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="22" />
-                <RowDefinition />
-            </Grid.RowDefinitions>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
-            <Grid Grid.Row="0">
-                <Border Background="{StaticResource BrightDarkGrayMainBG}"
-                        BorderBrush="{StaticResource BorderDarkGrayMainBG}"
-                        BorderThickness="2,1,1,2" />
-                <StackPanel Grid.Row="0"
-                            VerticalAlignment="Center"
-                            Orientation="Horizontal"
-                            Margin="3,0">
 
-                    <fa:IconImage Icon="Code"
-                                  Height="17"
-                                  Width="17"
-                                  Foreground="White"
-                                  Margin="0,0,0,3" />
-                    <Label Content="Mi Lenguaje"
-                           Margin="-1,-5"
-                           FontWeight="Normal"
-                           FontSize="13"
-                           Foreground="White" />
-                </StackPanel>
+        <Border Grid.Row="0"
+                Background="{StaticResource darkerbrightbg}"/>
+        <Border BorderBrush="{StaticResource BorderDarkGrayMainBG}"
+                BorderThickness="0,0,1,1" Grid.Row="1"> 
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="22" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <Border Background="{StaticResource BrightDarkGrayMainBG}"
+                            BorderBrush="{StaticResource BorderDarkGrayMainBG}"
+                            BorderThickness="2,1,1,2" />
+                    <StackPanel Grid.Row="0"
+                                VerticalAlignment="Center"
+                                Orientation="Horizontal"
+                                Margin="3,0">
+
+                        <fa:IconImage Icon="Code"
+                                      Height="17"
+                                      Width="17"
+                                      Foreground="White"
+                                      Margin="0,0,0,3" />
+                        <Label Content="Mi Lenguaje"
+                               Margin="-1,-5"
+                               FontWeight="Normal"
+                               FontSize="13"
+                               Foreground="White" />
+                    </StackPanel>
+                </Grid>
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="22" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0"
+                            Background="{StaticResource BrightDarkGrayMainBG}"
+                            BorderBrush="{StaticResource BorderDarkGrayMainBG}"
+                            BorderThickness="1,0,1,0" />
+                    <Grid Margin="-2198,680,1443,-680" />
+                    <avalonEdit:TextEditor Grid.Column="1"
+                                           x:Name="CodeEditor"
+                                           ShowLineNumbers="True"
+                                           FontFamily="consolas"
+                                           FontSize="13"
+                                           Background="{StaticResource DarkGrayMainBG}"
+                                           Foreground="White" />
+                </Grid>
+
             </Grid>
-            <Grid Grid.Row="1">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="22" />
-                    <ColumnDefinition />
-                </Grid.ColumnDefinitions>
-                <Border Grid.Column="0"
-                        Background="{StaticResource BrightDarkGrayMainBG}"
-                        BorderBrush="{StaticResource BorderDarkGrayMainBG}"
-                        BorderThickness="1,0,1,0" />
-                <Grid Margin="-2198,680,1443,-680" />
-                <avalonEdit:TextEditor Grid.Column="1"
-                                       x:Name="CodeEditor"
-                                       ShowLineNumbers="True"
-                                       FontFamily="consolas"
-                                       FontSize="13"
-                                       Background="{StaticResource DarkGrayMainBG}"
-                                       Foreground="White" />
-            </Grid>
-
-        </Grid>
-    </Border>
+        </Border>
+    </Grid>
+    
 </UserControl>

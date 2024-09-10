@@ -5,6 +5,7 @@
     <SolidColorBrush x:Key="BorderDarkGrayMainBG">#434343</SolidColorBrush>
     <SolidColorBrush x:Key="GrayBG">#505050</SolidColorBrush>
     <SolidColorBrush x:Key="darkerbrightbg">#313131</SolidColorBrush>
+    <SolidColorBrush x:Key="SelectedTab">#388acd</SolidColorBrush>
 
 
 
@@ -17,6 +18,7 @@
     <Color x:Key="BorderDarkGrayMain">#434343</Color>
     <Color x:Key="Graybs">#505050</Color>
     <Color x:Key="darkerbright">#313131</Color>
+    
 
 
     <Color x:Key="WindowColor">#FFE8EDF9</Color>

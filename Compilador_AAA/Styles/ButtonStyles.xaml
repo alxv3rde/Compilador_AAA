@@ -35,6 +35,51 @@
             </Trigger>
         </Style.Triggers>
     </Style>
+
+    <Style x:Key="tabButton"
+           TargetType="Button">
+
+        <!--Normal button style-->
+        
+        <Setter Property="Content"
+                Value="Test.txt"/>
+        <Setter Property="Height"
+                Value="auto" />
+        <Setter Property="Background"
+                Value="{DynamicResource BrightDarkGrayMainBG}" />
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource DarkGrayMainBG}" />
+        <Setter Property="BorderThickness" 
+                Value="1,0,1,0"/>
+        <Setter Property="Foreground"
+                Value="White" />
+        <Setter Property="FontWeight"
+                Value="SemiBold" />
+        <Setter Property="FontSize"
+                Value="13" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="{TemplateBinding Background}"
+                            CornerRadius="0">
+                        <ContentPresenter HorizontalAlignment="Left"
+                                          VerticalAlignment="Center" Margin="4,0,4,2"/>
+                        
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+            
+        </Setter>
+
+        <!--Mouse over back color-->
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver"
+                     Value="True">
+                <Setter Property="Background"
+                        Value="{DynamicResource BrightDarkGrayMainBG}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
     <Style x:Key="translateButton"
            TargetType="Button">
 

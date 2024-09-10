@@ -15,7 +15,7 @@
         Height="620"
         Width="1260"
         RenderOptions.BitmapScalingMode="HighQuality"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen" Icon="/Resources/SVG/translatec.png">
     <Border BorderBrush="{StaticResource BorderDarkGrayMainBG}" BorderThickness="1">
         <Grid Name="MainPanel"
               Style="{StaticResource MainPanel}"
@@ -23,6 +23,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="32" />
                 <RowDefinition />
+                <RowDefinition Height="22"/>
             </Grid.RowDefinitions>
             <Grid Grid.Row="0"
                   Name="WindowBar"
@@ -91,7 +92,7 @@
                     </Button>
                 </StackPanel>
             </Grid>
-
+            <Grid Grid.Row="2" Background="{StaticResource SelectedTab}"></Grid>
         </Grid>
     </Border>
    

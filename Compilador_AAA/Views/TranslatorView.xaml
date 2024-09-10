@@ -250,57 +250,8 @@ RelativeSource={RelativeSource TemplatedParent}}">
         <ColumnDefinition Width="110" />
         <ColumnDefinition />
     </Grid.ColumnDefinitions>
-        
-        <Border BorderBrush="{StaticResource BorderDarkGrayMainBG}"
-                BorderThickness="0,0,1,1" x:Name="OriginalCode">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="22" />
-                    <RowDefinition />
-                </Grid.RowDefinitions>
 
-                <Grid Grid.Row="0">
-                    <Border Background="{StaticResource BrightDarkGrayMainBG}"
-                            BorderBrush="{StaticResource BorderDarkGrayMainBG}"
-                            BorderThickness="2,1,1,2" />
-                    <StackPanel Grid.Row="0"
-                                VerticalAlignment="Center"
-                                Orientation="Horizontal"
-                                Margin="3,0">
-
-                        <fa:IconImage Icon="Code"
-                                      Height="15"
-                                      Width="15"
-                                      Foreground="White"
-                                      Margin="0,0,0,3" />
-                        <Label Content="Mi Lenguaje"
-                               Margin="-1,-5"
-                               FontWeight="Normal"
-                               FontSize="13"
-                               Foreground="White" />
-                    </StackPanel>
-                </Grid>
-                <Grid Grid.Row="1">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="22" />
-                        <ColumnDefinition />
-                    </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0"
-                            Background="{StaticResource BrightDarkGrayMainBG}"
-                            BorderBrush="{StaticResource BorderDarkGrayMainBG}"
-                            BorderThickness="1,0,1,0" />
-                    <Grid Margin="-2198,680,1443,-680" />
-                    <avalonEdit:TextEditor Grid.Column="1"
-                                           x:Name="OriginalCodeEditor"
-                                           ShowLineNumbers="True"
-                                           FontFamily="consolas"
-                                           FontSize="13"
-                                           Background="{StaticResource DarkGrayMainBG}"
-                                           Foreground="White" />
-                </Grid>
-
-            </Grid>
-        </Border>
+        <local:TextEditor />
 
 
 
@@ -315,8 +266,70 @@ RelativeSource={RelativeSource TemplatedParent}}">
 
             </Button>
         </Grid>
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                
+                <RowDefinition Height="2" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            
 
-        <Border BorderBrush="{StaticResource BorderDarkGrayMainBG}" x:Name="TranslatedCode"
+
+            <Border Grid.Row="0"
+                    Background="{StaticResource darkerbrightbg}" />
+            <Border BorderBrush="{StaticResource BorderDarkGrayMainBG}"
+                    BorderThickness="0,0,1,1"
+                    Grid.Row="1">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="22" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0">
+                        <Border Background="{StaticResource BrightDarkGrayMainBG}"
+                                BorderBrush="{StaticResource BorderDarkGrayMainBG}"
+                                BorderThickness="2,1,1,2" />
+                        <StackPanel Grid.Row="0"
+                                    VerticalAlignment="Center"
+                                    Orientation="Horizontal"
+                                    Margin="3,0">
+
+                            <fa:IconImage Icon="Code"
+                                          Height="17"
+                                          Width="17"
+                                          Foreground="White"
+                                          Margin="0,0,0,3" />
+                            <Label Content="Mi Lenguaje"
+                                   Margin="-1,-5"
+                                   FontWeight="Normal"
+                                   FontSize="13"
+                                   Foreground="White" />
+                        </StackPanel>
+                    </Grid>
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="22" />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0"
+                                Background="{StaticResource BrightDarkGrayMainBG}"
+                                BorderBrush="{StaticResource BorderDarkGrayMainBG}"
+                                BorderThickness="1,0,1,0" />
+                        <Grid Margin="-2198,680,1443,-680" />
+                        <avalonEdit:TextEditor Grid.Column="1"
+                                               x:Name="CodeEditor"
+                                               ShowLineNumbers="True"
+                                               FontFamily="consolas"
+                                               FontSize="13"
+                                               Background="{StaticResource DarkGrayMainBG}"
+                                               Foreground="White" />
+                    </Grid>
+
+                </Grid>
+            </Border>
+        </Grid>
+        <!--<Border BorderBrush="{StaticResource BorderDarkGrayMainBG}" x:Name="TranslatedCode"
                 BorderThickness="0,0,1,1" Grid.Column="2">
             <Grid>
                 <Grid.RowDefinitions>
@@ -361,7 +374,7 @@ RelativeSource={RelativeSource TemplatedParent}}">
                 </Grid>
 
             </Grid>
-        </Border>
+        </Border>-->
 
     </Grid>
 </UserControl>

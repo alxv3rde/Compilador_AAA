@@ -18,7 +18,7 @@
                                 <ColumnDefinition Width="Auto"
                                                   SharedSizeGroup="MenuTextColumnGroup" />
                                 <ColumnDefinition Width="Auto"
-                                                  SharedSizeGroup="MenuItemIGTColumnGroup" />
+                                                  SharedSizeGroup="MenuItemIGTColumnGroup" />   
                                 <ColumnDefinition x:Name="Col3" />
                             </Grid.ColumnDefinitions>
                             <ContentPresenter Grid.Column="0"
