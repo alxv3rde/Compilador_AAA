@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Compilador_AAA.Traductor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,29 @@ namespace Compilador_AAA.Views
         public TranslatorView()
         {
             InitializeComponent();
+        }
+
+        
+
+        private void btnTraducir_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string code = "int x = 10; if (x - 5) return";
+                Lexer lexer = new Lexer(code);
+                List<Token> tokens = lexer.Tokenize();
+
+                foreach (Token token in tokens)
+                {
+                    CodeEditor.Text += string.Format($"{token}\n");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Mostrar el error en caso de que algo salga mal
+                MessageBox.Show($"Error: {ex.Message}");
+            }
+            
         }
     }
 }
