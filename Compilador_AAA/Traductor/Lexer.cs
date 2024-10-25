@@ -13,7 +13,7 @@ namespace Compilador_AAA.Traductor
         Identifier,    // Nombres de variables, métodos, etc.
         Operator,      // Operadores como "+", "=", "=="
         Literal,       // Literales como números, cadenas
-        Punctuation    // Delimitadores como ";", "(", ")"
+        Punctuation   
     }
 
     public class Lexer
@@ -24,11 +24,11 @@ namespace Compilador_AAA.Traductor
         // Expresiones regulares para diferentes tipos de tokens
         private Dictionary<TokenType, string> _tokenPatterns = new Dictionary<TokenType, string>()
     {
-        { TokenType.Keyword, @"\b(int|if|for|while|return)\b" },    // Palabras clave
+        { TokenType.Keyword, @"\b(int|if|for|while|return)\b" },     // Palabras clave
         { TokenType.Identifier, @"\b[a-zA-Z_][a-zA-Z0-9_]*\b" },     // Identificadores
-        { TokenType.Operator, @"[+\-*/=]" },                         // Operadores
+        { TokenType.Operator, @"[+\-*/=<>!]=?|&&|\|\|" },            // Operadores
         { TokenType.Literal, @"\b\d+\b" },                           // Literales (números)
-        { TokenType.Punctuation, @"[;,.(){}]" }                      // Puntuación
+        { TokenType.Punctuation, @"[;,.()\[\]\{\}]" }                          // Espacios en blanco
     };
 
         public Lexer(string code)
@@ -58,7 +58,7 @@ namespace Compilador_AAA.Traductor
                 }
                 else
                 {
-                    throw new Exception($"Token no reconocido en la posición {_position}");
+                    throw new Exception($"Token no reconocido en la posición {_position}: '{_code[_position]}'");
                 }
             }
 
@@ -79,5 +79,6 @@ namespace Compilador_AAA.Traductor
 
             return null; // Si no se encuentra un token válido
         }
+
     }
 }

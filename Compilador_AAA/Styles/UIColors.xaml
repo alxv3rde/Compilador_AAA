@@ -1,11 +1,15 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <SolidColorBrush x:Key="DarkGrayMainBG">#222222</SolidColorBrush>
+    <SolidColorBrush x:Key="DarkGrayMainBG">#212121</SolidColorBrush>
+    <SolidColorBrush x:Key="DarkerGrayMainBG">#202020</SolidColorBrush>
     <SolidColorBrush x:Key="BrightDarkGrayMainBG">#3a3a3a</SolidColorBrush>
+    <SolidColorBrush x:Key="BrighterMainBG">#3a3a3a</SolidColorBrush>
     <SolidColorBrush x:Key="BorderDarkGrayMainBG">#434343</SolidColorBrush>
     <SolidColorBrush x:Key="GrayBG">#505050</SolidColorBrush>
     <SolidColorBrush x:Key="darkerbrightbg">#313131</SolidColorBrush>
     <SolidColorBrush x:Key="SelectedTab">#388acd</SolidColorBrush>
+    <SolidColorBrush x:Key="Console">#272728</SolidColorBrush>
+    <SolidColorBrush x:Key="Glyph">#FF444444</SolidColorBrush>
 
 
 
@@ -14,6 +18,7 @@
 
     <!--Control colors.-->
     <Color x:Key="DarkGrayMain">#222222</Color>
+    <Color x:Key="SBrightDarkGrayMainBG">#3a3a3a</Color>
     <Color x:Key="BrightDarkGrayMain">#3a3a3a</Color>
     <Color x:Key="BorderDarkGrayMain">#434343</Color>
     <Color x:Key="Graybs">#505050</Color>
@@ -46,7 +51,7 @@
     <!--Border colors-->
     <Color x:Key="BorderLightColor">#FFCCCCCC</Color>
     <Color x:Key="BorderMediumColor">#FF888888</Color>
-    <Color x:Key="BorderDarkColor">#FF444444</Color>
+    <Color x:Key="BorderDarkColor">#4b4b4b</Color>
 
     <Color x:Key="PressedBorderLightColor">#FF888888</Color>
     <Color x:Key="PressedBorderDarkColor">#FF444444</Color>

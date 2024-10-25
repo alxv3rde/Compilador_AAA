@@ -32,10 +32,11 @@
                                               ContentSource="Header"
                                               VerticalAlignment="Center" />
                             <ContentPresenter Grid.Column="2"
-                                              Margin="8,1,8,1"
+                                              Margin="1,0,1,1"
                                               x:Name="IGTHost"
                                               ContentSource="InputGestureText"
-                                              VerticalAlignment="Center" />
+                                              VerticalAlignment="Center" 
+/>
 
                             <Popup IsOpen="{Binding Path=IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}"
                                    Placement="Bottom"
@@ -47,7 +48,7 @@
                                 <Grid Margin="0,0,5,5">
                                     <!--Border 2-->
                                     <Border x:Name="SubMenuBorder"
-                                            BorderBrush="{StaticResource GrayBG}"
+                                            BorderBrush="#6f6f6f"
                                             BorderThickness="1"
                                             Background="{StaticResource BrightDarkGrayMainBG}"
                                             SnapsToDevicePixels="True">
@@ -85,7 +86,7 @@
                                     Value="{StaticResource BrightDarkGrayMainBG}" />
                             <Setter TargetName="Border"
                                     Property="BorderBrush"
-                                    Value="{StaticResource GrayBG}" />
+                                    Value="#6f6f6f" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
