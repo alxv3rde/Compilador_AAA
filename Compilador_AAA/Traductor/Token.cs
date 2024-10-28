@@ -10,16 +10,24 @@ namespace Compilador_AAA.Traductor
     {
         public TokenType Type { get; }
         public string Value { get; }
+        public int Start { get; } // Posición de inicio del token
+        public int End { get; }   // Posición final del token
+        public int StartLine { get; } // Línea de inicio del token
+        public int EndLine { get; }   // Línea de fin del token
 
-        public Token(TokenType type, string value)
+        public Token(TokenType type, string value, int start, int end, int startLine, int endLine)
         {
             Type = type;
             Value = value;
+            Start = start;
+            End = end;
+            StartLine = startLine;
+            EndLine = endLine;
         }
 
         public override string ToString()
         {
-            return $"{Type}: {Value}";
+            return $"{Type}: {Value} (Start: {Start}, End: {End}, LineStart: {StartLine} LineEnd:{EndLine})";
         }
     }
 

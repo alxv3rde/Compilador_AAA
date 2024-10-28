@@ -75,5 +75,18 @@ namespace Compilador_AAA
             ContentPanel.Children.Clear();
             ContentPanel.Children.Add(translatorView);
         }
+
+
+        private void Window_Activated(object sender, EventArgs e)
+        {
+            BrushConverter bc = new BrushConverter();
+            MainBorder.BorderBrush = (Brush)bc.ConvertFrom("#878b4f");
+        }
+
+        private void Window_Deactivated(object sender, EventArgs e)
+        {
+            BrushConverter bc = new BrushConverter();
+            MainBorder.BorderBrush = (Brush)bc.ConvertFrom("#434343");
+        }
     }
 }

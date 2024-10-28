@@ -18,6 +18,8 @@ using System.Windows.Shapes;
 using System.Diagnostics.Metrics;
 using System.Collections.ObjectModel;
 using Compilador_AAA.Models;
+using ICSharpCode.AvalonEdit.Highlighting;
+using System.Text.RegularExpressions;
 
 namespace Compilador_AAA.Views
 {
@@ -29,20 +31,25 @@ namespace Compilador_AAA.Views
         public TranslatorView()
         {
             InitializeComponent();
-            ObservableCollection<ErrorRow> filas = new ObservableCollection<ErrorRow>
-{
-    new ErrorRow { emp1="",Image = "../Resources/SVG/cross.png", Code = "A001", Description = "Gravedad Código DescripciónProyectoArchivoLíneaEstado suprimido Aviso (activo)CS8618El elemento propiedad \"Code\" que no acepta valores NULL debe contener un valor distinto de NULL al salir del constructor. Considere la posibilidad de agregar el modificador \"required'\"o declarar el propiedad como un valor que acepta valores NULL.Compilador_AAAC: Users Alejandro source repos alxv3rde Compilador_AAA Compilador_AAA Models ErrorRow.cs15", Line = "42", emp2="" },
-    new ErrorRow { emp1="",Image = "../Resources/SVG/cross.png", Code = "A001", Description = "Primera fila", Line = "42", emp2="" },
-    new ErrorRow { emp1="",Image = "../Resources/SVG/cross.png", Code = "A001", Description = "Primera fila", Line = "42", emp2="" },
-    new ErrorRow { emp1="",Image = "../Resources/SVG/cross.png", Code = "A001", Description = "Primera fila", Line = "42", emp2="" },
-    new ErrorRow { emp1="",Image = "../Resources/SVG/cross.png", Code = "A001", Description = "Primera fila", Line = "42", emp2="" },
-    new ErrorRow { emp1="",Image = "../Resources/SVG/cross.png", Code = "A001", Description = "Primera fila", Line = "42", emp2="" },
-    new ErrorRow { emp1="",Image = "../Resources/SVG/cross.png", Code = "A001", Description = "Primera fila", Line = "42", emp2="" },
-    new ErrorRow { emp1="",Image = "../Resources/SVG/cross.png", Code = "A001", Description = "Primera fila", Line = "42", emp2="" },
-};
 
-            // Asignar la lista al ListView
-            lvErrores.ItemsSource = filas;
+            lvErrores.ItemsSource = ErrorList;
+        }
+        public static ObservableCollection<ErrorRow> ErrorList { get; set; } = new ObservableCollection<ErrorRow>();
+
+        // Método para manejar errores
+        public static void HandleError(string errorMessage, int position)
+        {
+            var errorRow = new ErrorRow
+            {
+                emp1 = "",
+                Code = "A001", // Código de error
+                Description = errorMessage,
+                Line = position.ToString(),
+                Image = "../Resources/SVG/cross.png", // Ruta de la imagen, si es necesario
+                emp2 = "",
+            };
+
+            ErrorList.Add(errorRow);
         }
 
         private bool _isDragging = false;
@@ -50,7 +57,8 @@ namespace Compilador_AAA.Views
 
         private void btnTraducir_Click(object sender, RoutedEventArgs e)
         {
-            CodeEditor.Text = string.Empty;
+            ErrorList.Clear();
+            TranslatedEditor.Text = string.Empty;
             TextDocument document = OriginalEditor.Document;
 
             // Recorrer todas las líneas del documento
@@ -71,18 +79,19 @@ namespace Compilador_AAA.Views
                     {
                         string temp = tokens[i].ToString();
                         if (i != tokens.Count - 1)
-                            CodeEditor.Text += "'" + temp + "'" + ", ";
+                            TranslatedEditor.Text += "'" + temp + "'" + ", ";
                         else
-                            CodeEditor.Text += "'" + temp + "'\n";
+                            TranslatedEditor.Text += "'" + temp + "'\n";
                     }
                 }
                 catch (Exception ex)
                 {
-                    // Mostrar el error en caso de que algo salga mal
-                    MessageBox.Show($"Error: {ex.Message}");
+                    MessageBox.Show("error");
                 }
             }
 
+            BrushConverter bc = new BrushConverter();
+            translatedheadercolor.Background = (Brush)bc.ConvertFrom("#878b4f");
 
         }
 
@@ -106,6 +115,87 @@ namespace Compilador_AAA.Views
             }
         }
 
-        
+        private void OriginalEditor_GotFocus(object sender, RoutedEventArgs e)
+        {
+            BrushConverter bc = new BrushConverter();
+            originalheadercolor.Background = (Brush)bc.ConvertFrom("#878b4f");
+            translatedheadercolor.Background = (Brush)bc.ConvertFrom("#313131");
+            errorlistheadercolor.Background = (Brush)bc.ConvertFrom("#313131");
+        }
+
+        private void OriginalEditor_LostFocus(object sender, RoutedEventArgs e)
+        {
+            BrushConverter bc = new BrushConverter();
+            originalheadercolor.Background = (Brush)bc.ConvertFrom("#313131");
+        }
+
+        private void TranslatedEditor_GotFocus(object sender, RoutedEventArgs e)
+        {
+            BrushConverter bc = new BrushConverter();
+            translatedheadercolor.Background = (Brush)bc.ConvertFrom("#878b4f");
+            originalheadercolor.Background = (Brush)bc.ConvertFrom("#313131");
+            errorlistheadercolor.Background = (Brush)bc.ConvertFrom("#313131");
+        }
+
+        private void TranslatedEditor_LostFocus(object sender, RoutedEventArgs e)
+        {
+            BrushConverter bc = new BrushConverter();
+            translatedheadercolor.Background = (Brush)bc.ConvertFrom("#313131");
+        }
+
+        private void ErrorsWindow_GotFocus(object sender, RoutedEventArgs e)
+        {
+            BrushConverter bc = new BrushConverter();
+            errorlistheadercolor.Background = (Brush)bc.ConvertFrom("#878b4f");
+            originalheadercolor.Background = (Brush)bc.ConvertFrom("#313131");
+            translatedheadercolor.Background = (Brush)bc.ConvertFrom("#313131");
+        }
+
+        private void ErrorsWindow_LostFocus(object sender, RoutedEventArgs e)
+        {
+            errorlistheadercolor.Background = new SolidColorBrush(Colors.Transparent);
+        }
+
+        private void OriginalEditor_TextChanged(object sender, EventArgs e)
+        {
+            if (OriginalEditor.Text!=string.Empty)
+            {
+                ErrorList.Clear();
+                TranslatedEditor.Text = string.Empty;
+                TextDocument document = OriginalEditor.Document;
+
+                // Recorrer todas las líneas del documento
+                for (int lineNumber = 1; lineNumber <= document.LineCount; lineNumber++)
+                {
+                    // Obtener la línea específica por su número
+                    DocumentLine line = document.GetLineByNumber(lineNumber);
+
+                    // Obtener el texto de la línea
+                    string lineText = document.GetText(line);
+
+                    try
+                    {
+                        Lexer lexer = new Lexer(lineText);
+                        List<Token> tokens = lexer.Tokenize();
+                        TranslatedEditor.Text += "block \n";
+                        for (int i = 0; i < tokens.Count; i++)
+                        {
+                            string temp = tokens[i].ToString();
+                            if (i != tokens.Count - 1)
+                                TranslatedEditor.Text += "\t'" + temp + "'" + ", \n";
+                            else
+                                TranslatedEditor.Text += "\t'" + temp + "'\n";
+                        }
+                        TranslatedEditor.Text += "End \n\n";
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("error");
+                    }
+                }
+            }
+            
+
+        }
     }
 }

@@ -93,7 +93,7 @@
         <Setter Property="Foreground"
                 Value="Black" />
         <Setter Property="Opacity"
-                Value="0.65" />
+                Value="0.60" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">

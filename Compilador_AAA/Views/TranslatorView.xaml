@@ -265,7 +265,7 @@ RelativeSource={RelativeSource TemplatedParent}}">
                 </Grid.RowDefinitions>
 
                 <Border Grid.Row="0"
-                    Background="{StaticResource darkerbrightbg}" />
+                    Background="{StaticResource darkerbrightbg}" Name="originalheadercolor"/>
             <Border BorderBrush="{StaticResource BorderDarkGrayMainBG}"
                     BorderThickness="0,0,1,1"
                     Grid.Row="1">
@@ -312,7 +312,7 @@ RelativeSource={RelativeSource TemplatedParent}}">
                                                FontFamily="consolas"
                                                FontSize="13"
                                                Background="{StaticResource DarkerGrayMainBG}"
-                                               Foreground="White" />
+                                               Foreground="White" GotFocus="OriginalEditor_GotFocus" LostFocus="OriginalEditor_LostFocus" SyntaxHighlighting="true" TextChanged="OriginalEditor_TextChanged"/>
                     </Grid>
 
                 </Grid>
@@ -340,7 +340,7 @@ RelativeSource={RelativeSource TemplatedParent}}">
 
 
                 <Border Grid.Row="0"
-                        Background="{StaticResource darkerbrightbg}" />
+                        Background="{StaticResource darkerbrightbg}" Name="translatedheadercolor" />
                 <Border BorderBrush="{StaticResource BorderDarkGrayMainBG}"
                         BorderThickness="0,0,1,1"
                         Grid.Row="1">
@@ -388,13 +388,13 @@ RelativeSource={RelativeSource TemplatedParent}}">
                             <Grid Margin="-2198,291,1443,-680"
                                   Grid.Row="1" />
                             <avalonEdit:TextEditor Grid.Column="1"
-                                                   x:Name="CodeEditor"
+                                                   x:Name="TranslatedEditor"
                                                    ShowLineNumbers="True"
                                                    FontFamily="consolas"
                                                    FontSize="13"
                                                    Background="{StaticResource DarkerGrayMainBG}"
                                                    Foreground="White"
-                                                   Grid.RowSpan="2" />
+                                                   Grid.RowSpan="2" GotFocus="TranslatedEditor_GotFocus" LostFocus="TranslatedEditor_LostFocus" IsReadOnly="True"/>
                         </Grid>
 
                     </Grid>
@@ -409,13 +409,15 @@ RelativeSource={RelativeSource TemplatedParent}}">
                       ShowsPreview="True"
                       Height="5" />
 
-        <Border Grid.Row="2" Name="ErrorsWindow" Margin="0,0,0,6" BorderBrush="{StaticResource BorderDarkGrayMainBG}" Background="{StaticResource DarkGrayMainBG}" BorderThickness="1">
+        <Border Grid.Row="2" Name="ErrorsWindow" GotFocus="ErrorsWindow_GotFocus" LostFocus="ErrorsWindow_LostFocus" Margin="0,0,0,6" BorderBrush="{StaticResource BorderDarkGrayMainBG}" Background="{StaticResource DarkGrayMainBG}" BorderThickness="1">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="22"/>
+                    <RowDefinition Height="2"/>
+                    <RowDefinition Height="20"/>
                     <RowDefinition />
                 </Grid.RowDefinitions>
-                <Grid Grid.Row="0"
+                <Border Name="errorlistheadercolor"/>
+                <Grid Grid.Row="1"
                       Margin="3,0"
                       Height="22">
                     <Grid Grid.Row="0" Background="{StaticResource DarkGrayMainBG}">
@@ -446,7 +448,7 @@ RelativeSource={RelativeSource TemplatedParent}}">
                         </Grid>
                     </Grid>
                 </Grid>
-                <Grid Grid.Row="1"
+                <Grid Grid.Row="2"
                       Margin="1,0">
                     <ListView SizeChanged="lvErrores_SizeChanged"
                               Name="lvErrores" Background="{StaticResource DarkGrayMainBG}" BorderThickness="0">
@@ -549,7 +551,7 @@ RelativeSource={RelativeSource TemplatedParent}}">
                                                 Width="55"
                                                 DisplayMemberBinding="{Binding Code}" />
                                 <GridViewColumn Header="Descripción"
-                                                Width="667">
+                                                Width="600">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <TextBlock TextWrapping="Wrap" Text="{Binding Description}"/>

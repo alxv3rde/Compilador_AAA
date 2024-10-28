@@ -13,6 +13,7 @@
     <None Remove="Resources\SVG\coding.png" />
     <None Remove="Resources\SVG\cross.png" />
     <None Remove="Resources\SVG\sasa.png" />
+    <None Remove="Resources\SVG\testicon.png" />
     <None Remove="Resources\SVG\translatec.png" />
     <None Remove="Resources\SVG\translatec2.png" />
   </ItemGroup>
@@ -30,6 +31,7 @@
     <Resource Include="Resources\SVG\closesvg.png" />
     <Resource Include="Resources\SVG\coding.png" />
     <Resource Include="Resources\SVG\sasa.png" />
+    <Resource Include="Resources\SVG\testicon.png" />
     <Resource Include="Resources\SVG\translatec.png" />
     <Resource Include="Resources\SVG\translatec2.png" />
   </ItemGroup>

@@ -7,7 +7,7 @@ using System.Windows.Media.Imaging;
 
 namespace Compilador_AAA.Models
 {
-    internal class ErrorRow
+    public class ErrorRow
     {
 
         public string emp1 { get; set; }

@@ -10,26 +10,26 @@
         xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp"
         AllowsTransparency="True"
         UseLayoutRounding="True"
-        ResizeMode="CanResize"
+        ResizeMode="CanResizeWithGrip"
         Title="MainView"
         Height="620"
         Width="1260"
         RenderOptions.BitmapScalingMode="HighQuality"
-        WindowStartupLocation="CenterScreen" Icon="/Resources/SVG/translatec2.png">
+        WindowStartupLocation="CenterScreen" Icon="/Resources/SVG/testicon.png" Activated="Window_Activated" Deactivated="Window_Deactivated">
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="0"
                       ResizeBorderThickness="5"
                       GlassFrameThickness="0"
                       CornerRadius="0" />
     </WindowChrome.WindowChrome>
-    <Border Name="MainBorder" BorderBrush="{StaticResource BorderDarkGrayMainBG}" BorderThickness="1">
+    <Border Name="MainBorder" BorderBrush="{StaticResource BorderDarkGrayMainBG}" BorderThickness="1" >
         <Grid Name="MainPanel"
               Style="{StaticResource MainPanel}"
               Background="{StaticResource DarkGrayMainBG}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="32" />
                 <RowDefinition />
-                <RowDefinition Height="22"/>
+                <RowDefinition Height="24"/>
             </Grid.RowDefinitions>
             <Grid Grid.Row="0"
                   Name="WindowBar"
@@ -43,7 +43,7 @@
                 <StackPanel Orientation="Horizontal"
                             VerticalAlignment="Center"
                             Margin="10,0,0,0">
-                    <Image Source="/resources/svg/translatec2.png" Width="21" Opacity="0.88" Margin="0,0,3,0"/>
+                    <Image Source="/resources/svg/testicon.png" Width="21" Opacity="0.80" Margin="0,0,3,0"/>
                     <Menu Background="Transparent"
                           Foreground="#cccccc"
                           VerticalAlignment="Center"
@@ -102,7 +102,7 @@
             </Grid>
             <Grid Grid.Row="1" Name="ContentPanel" Margin="10,0"/>
             <Grid Grid.Row="2"
-                  Background="#b3e860"></Grid>
+                  Background="#878b4f"></Grid>
         </Grid>
     </Border>
    
