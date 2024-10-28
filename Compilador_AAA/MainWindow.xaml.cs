@@ -25,6 +25,7 @@ namespace Compilador_AAA
             this.MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
             TranslatorView translatorView = new TranslatorView();
             ContentPanel.Children.Add(translatorView);
+            
 
 
         }

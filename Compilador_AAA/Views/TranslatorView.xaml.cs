@@ -20,6 +20,7 @@ using System.Collections.ObjectModel;
 using Compilador_AAA.Models;
 using ICSharpCode.AvalonEdit.Highlighting;
 using System.Text.RegularExpressions;
+using System.Collections;
 
 namespace Compilador_AAA.Views
 {
@@ -31,18 +32,24 @@ namespace Compilador_AAA.Views
         public TranslatorView()
         {
             InitializeComponent();
-
+            Loaded += TranslatorView_Loaded;
             lvErrores.ItemsSource = ErrorList;
         }
+
+        private void TranslatorView_Loaded(object sender, RoutedEventArgs e)
+        {
+            OriginalEditor.Focus();
+        }
+
         public static ObservableCollection<ErrorRow> ErrorList { get; set; } = new ObservableCollection<ErrorRow>();
 
         // Método para manejar errores
-        public static void HandleError(string errorMessage, int position)
+        public static void HandleError(string errorMessage, int position, string code)
         {
             var errorRow = new ErrorRow
             {
                 emp1 = "",
-                Code = "A001", // Código de error
+                Code = code, // Código de error
                 Description = errorMessage,
                 Line = position.ToString(),
                 Image = "../Resources/SVG/cross.png", // Ruta de la imagen, si es necesario
@@ -57,38 +64,6 @@ namespace Compilador_AAA.Views
 
         private void btnTraducir_Click(object sender, RoutedEventArgs e)
         {
-            ErrorList.Clear();
-            TranslatedEditor.Text = string.Empty;
-            TextDocument document = OriginalEditor.Document;
-
-            // Recorrer todas las líneas del documento
-            for (int lineNumber = 1; lineNumber <= document.LineCount; lineNumber++)
-            {
-                // Obtener la línea específica por su número
-                DocumentLine line = document.GetLineByNumber(lineNumber);
-
-                // Obtener el texto de la línea
-                string lineText = document.GetText(line);
-
-                try
-                {
-                    Lexer lexer = new Lexer(lineText);
-                    List<Token> tokens = lexer.Tokenize();
-
-                    for (int i = 0; i < tokens.Count; i++)
-                    {
-                        string temp = tokens[i].ToString();
-                        if (i != tokens.Count - 1)
-                            TranslatedEditor.Text += "'" + temp + "'" + ", ";
-                        else
-                            TranslatedEditor.Text += "'" + temp + "'\n";
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("error");
-                }
-            }
 
             BrushConverter bc = new BrushConverter();
             translatedheadercolor.Background = (Brush)bc.ConvertFrom("#878b4f");
@@ -158,44 +133,47 @@ namespace Compilador_AAA.Views
 
         private void OriginalEditor_TextChanged(object sender, EventArgs e)
         {
-            if (OriginalEditor.Text!=string.Empty)
+            if (OriginalEditor.Text != string.Empty)
             {
                 ErrorList.Clear();
                 TranslatedEditor.Text = string.Empty;
-                TextDocument document = OriginalEditor.Document;
 
-                // Recorrer todas las líneas del documento
-                for (int lineNumber = 1; lineNumber <= document.LineCount; lineNumber++)
+                try
                 {
-                    // Obtener la línea específica por su número
-                    DocumentLine line = document.GetLineByNumber(lineNumber);
+                    Lexer lexer = new Lexer(OriginalEditor.Document);
+                    var tokensTuple = lexer.Tokenize();
 
-                    // Obtener el texto de la línea
-                    string lineText = document.GetText(line);
-
-                    try
+                    for (int i = 1; i < tokensTuple.Keys.Count + 1; i++)
                     {
-                        Lexer lexer = new Lexer(lineText);
-                        List<Token> tokens = lexer.Tokenize();
                         TranslatedEditor.Text += "block \n";
-                        for (int i = 0; i < tokens.Count; i++)
+
+                        for (int j = 0; j < tokensTuple.Where(kv => kv.Key == i)
+                              .Select(kv => kv.Value.Count)
+                              .FirstOrDefault(); j++)
                         {
-                            string temp = tokens[i].ToString();
-                            if (i != tokens.Count - 1)
-                                TranslatedEditor.Text += "\t'" + temp + "'" + ", \n";
-                            else
-                                TranslatedEditor.Text += "\t'" + temp + "'\n";
+                            if (tokensTuple.TryGetValue(i, out List<Token> valor))
+                            {
+
+                                string temp = valor[j].ToString();
+                                if (i != tokensTuple.Count - 1)
+                                    TranslatedEditor.Text += "\t'" + temp + "'" + ", \n";
+                                else
+                                    TranslatedEditor.Text += "\t'" + temp + "'\n";
+                            }
                         }
                         TranslatedEditor.Text += "End \n\n";
                     }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show("error");
-                    }
+
+
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("error");
                 }
             }
-            
-
         }
+
+
     }
 }
+

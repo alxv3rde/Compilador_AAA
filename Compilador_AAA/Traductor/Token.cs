@@ -27,7 +27,7 @@ namespace Compilador_AAA.Traductor
 
         public override string ToString()
         {
-            return $"{Type}: {Value} (Start: {Start}, End: {End}, LineStart: {StartLine} LineEnd:{EndLine})";
+            return $"{Type}: {Value} (StartColumn: {Start}, EndColumn: {End}, StartLine: {StartLine} EndLine:{EndLine})";
         }
     }
 

@@ -1,11 +1,14 @@
 ﻿using Compilador_AAA.Views;
+using ICSharpCode.AvalonEdit.Document;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Compilador_AAA.Traductor
 {
@@ -14,7 +17,8 @@ namespace Compilador_AAA.Traductor
         Public,
         Private,
         Protected,
-        Internal,
+        Internal, 
+        Constant,
         Keyword,
         Identifier,
         Literal,
@@ -39,12 +43,14 @@ namespace Compilador_AAA.Traductor
 
     public class Lexer
     {
-        private string _code; // El código fuente
+        private TextDocument _code; // El código fuente
         private int _position; // Posición actual en el código
+        private int _currentLine;
 
         private Dictionary<TokenType, string> _tokenPatterns = new Dictionary<TokenType, string>()
     {
         { TokenType.SingleLineComment, @"//.*" },
+        { TokenType.Constant, @"\bconst\b" },
         { TokenType.MultiLineComment, @"/\*[\s\S]*?\*/" },
         { TokenType.Public, @"\bpublic\b" },
         { TokenType.Private, @"\bprivate\b" },
@@ -68,80 +74,91 @@ namespace Compilador_AAA.Traductor
 
     };
 
-        public Lexer(string code)
+        public Lexer(TextDocument code)
         {
             _code = code;
             _position = 0;
         }
 
-        public List<Token> Tokenize()
+        public Dictionary<int, List<Token>> Tokenize()
         {
-            List<Token> tokens = new List<Token>();
+            Dictionary<int, List<Token>> tokensByLine = new Dictionary<int, List<Token>>();
+            _currentLine = 1;
+            List<Token> currentTokens = new List<Token>();
 
-            while (_position < _code.Length)
+            for (int lineNumber = 1; lineNumber <= _code.LineCount; lineNumber++)
             {
-                // Ignorar espacios en blanco
-                if (char.IsWhiteSpace(_code[_position]))
-                {
-                    _position++;
-                    continue;
-                }
+                // Obtener la línea específica por su número
+                DocumentLine line = _code.GetLineByNumber(lineNumber);
 
-                // Tratar de encontrar un token válido
-                Token token = GetNextToken();
-                if (token != null)
+                // Obtener el texto de la línea
+                string lineText = _code.GetText(line);
+                _position = 0; // Reiniciar la posición para cada línea
+
+                while (_position < lineText.Length)
                 {
-                    // Verificar identificadores que comienzan con un número
-                    if (token.Type == TokenType.Identifier && char.IsDigit(token.Value[0]))
+                    // Ignorar espacios en blanco
+                    if (char.IsWhiteSpace(lineText[_position]))
                     {
-                        TranslatorView.HandleError($"Identificador no puede comenzar con un número en la posición {_position}: '{token.Value}'", 1);
+                        _position++;
+                        continue;
                     }
 
-                    // Verificar números mal formateados con múltiples puntos decimales
-                    if (token.Type == TokenType.NumericLiteral && token.Value.Count(c => c == '.') > 1)
+                    // Obtener el siguiente token
+                    Token token = GetNextToken(lineText);
+                    if (token != null)
                     {
-                        TranslatorView.HandleError($"Número mal formateado en la posición {_position}: '{token.Value}'", 2);
-                    }
+                        // Verificar identificadores que comienzan con un número
+                        if (token.Type == TokenType.Identifier && char.IsDigit(token.Value[0]))
+                        {
+                            TranslatorView.HandleError($"Identificador no puede comenzar con un número en la posición {_position}: '{token.Value}'", token.EndLine,"LEX001");
+                        }
 
-                    tokens.Add(token);
+                        // Verificar números mal formateados con múltiples puntos decimales
+                        if (token.Type == TokenType.NumericLiteral && token.Value.Count(c => c == '.') > 1)
+                        {
+                            TranslatorView.HandleError($"Número mal formateado en la posición {_position}: '{token.Value}'", token.EndLine, "LEX002");
+                        }
+
+                        currentTokens.Add(token);
+                    }
+                    else
+                    {
+                        // Manejo de errores
+                        TranslatorView.HandleError($"Token no reconocido en la posición {_position}: '{lineText[_position]}'", _currentLine, "LEX003");
+                        _position++;
+                    }
                 }
-                else
+
+                // Agregar los tokens de la última línea si hay alguno
+                if (currentTokens.Count > 0)
                 {
-                    TranslatorView.HandleError($"Token no reconocido en la posición {_position}: '{_code[_position]}'", _position);
-                    _position++;
+                    tokensByLine[_currentLine] = currentTokens.ToList();
+                    _currentLine++;
+                    currentTokens.Clear();
                 }
             }
-            return tokens;
+
+            // Agregar el token EOF al final
+            currentTokens.Add(new Token(TokenType.EOF, "", _position, _position, _currentLine, _currentLine));
+            tokensByLine[_currentLine] = currentTokens;
+
+            return tokensByLine;
         }
 
-        private Token GetNextToken()
+        private Token GetNextToken(string lineText)
         {
             // Contadores para la línea y la posición en la línea
-            int startLine = 1;
+            int startLine = _currentLine;
             int startColumn = 1;
-
-            // Contar líneas y columnas hasta la posición actual
-            for (int i = 0; i < _position; i++)
-            {
-                if (_code[i] == '\n')
-                {
-                    startLine++;
-                    startColumn = 1;
-                }
-                else
-                {
-                    startColumn++;
-                }
-            }
-
             // Verificar manualmente los literales de cadena
-            if (_code[_position] == '\"' || _code[_position] == '\'')
+            if (lineText[_position] == '\"' || lineText[_position] == '\'')
             {
-                char quoteChar = _code[_position];
+                char quoteChar = lineText[_position];
                 int start = _position++;
-                while (_position < _code.Length && _code[_position] != quoteChar)
+                while (_position < lineText.Length && lineText[_position] != quoteChar)
                 {
-                    if (_code[_position] == '\n') // Incrementar la línea si encontramos un salto de línea
+                    if (lineText[_position] == '\n') // Incrementar la línea si encontramos un salto de línea
                     {
                         startLine++;
                         startColumn = 1;
@@ -154,9 +171,9 @@ namespace Compilador_AAA.Traductor
                 }
 
                 // Si alcanzamos el final sin encontrar la comilla de cierre
-                if (_position >= _code.Length || _code[_position] != quoteChar)
+                if (_position >= lineText.Length || lineText[_position] != quoteChar)
                 {
-                    TranslatorView.HandleError($"Literal de cadena sin cerrar que comienza en la posición {start}.", 1);
+                    TranslatorView.HandleError($"Literal de cadena sin cerrar que comienza en la posición {start}.", startLine, "LEX004");
                 }
                 else
                 {
@@ -164,14 +181,14 @@ namespace Compilador_AAA.Traductor
                     _position++;
                 }
 
-                string value = _code.Substring(start, _position - start);
+                string value = lineText.Substring(start, _position - start);
                 return new Token(TokenType.StringLiteral, value, start, _position - 1, startLine, startLine); // Fin es _position - 1
             }
 
             // Buscar otros tokens mediante patrones
             foreach (var pattern in _tokenPatterns)
             {
-                Match match = Regex.Match(_code.Substring(_position), pattern.Value);
+                Match match = Regex.Match(lineText.Substring(_position), pattern.Value);
                 if (match.Success && match.Index == 0) // El token debe comenzar en la posición actual
                 {
                     int start = _position;
@@ -181,20 +198,6 @@ namespace Compilador_AAA.Traductor
                     // Calcular la línea de fin
                     int endLine = startLine;
                     int endColumn = startColumn + match.Length - 1;
-
-                    // Actualizar endLine si se ha cruzado un salto de línea
-                    for (int i = start; i <= end; i++)
-                    {
-                        if (_code[i] == '\n')
-                        {
-                            endLine++;
-                            endColumn = 1;
-                        }
-                        else
-                        {
-                            endColumn++;
-                        }
-                    }
 
                     return new Token(pattern.Key, match.Value, start, end, startLine, endLine); // Fin es _position - 1
                 }

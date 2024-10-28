@@ -52,11 +52,11 @@ namespace Compilador_AAA.Traductor
     // PROGRAM NODE
     public class Program : Stmt
     {
-        public List<Stmt> Body { get; set; }
+        public List<Stmt> children { get; set; }
 
         public Program() : base(NodeType.Program)
         {
-            Body = new List<Stmt>();
+            children= new List<Stmt>();
         }
         public override void Accept(IVisitor visitor)
         {
@@ -67,14 +67,14 @@ namespace Compilador_AAA.Traductor
     {
         public List<string> Parameters { get; set; }
         public string Name { get; set; }
-        public List<Stmt> Body { get; set; }
+        public List<Stmt> Children { get; set; }
 
-        public ClassDeclaration(string name, List<string> parameters, List<Stmt> body)
+        public ClassDeclaration(string name, List<string> parameters, List<Stmt> children)
                     : base(NodeType.ClassDeclaration)
         {
             Name = name;
             Parameters = parameters;
-            Body = body;
+            Children = children;
         }
 
         public override void Accept(IVisitor visitor)
@@ -106,14 +106,14 @@ namespace Compilador_AAA.Traductor
     {
         public List<string> Parameters { get; set; }
         public string Name { get; set; }
-        public List<Stmt> Body { get; set; }
+        public List<Stmt> Children { get; set; }
 
-        public FunctionDeclaration(string name, List<string> parameters, List<Stmt> body)
+        public FunctionDeclaration(string name, List<string> parameters, List<Stmt> children)
             : base(NodeType.FunctionDeclaration)
         {
             Name = name;
             Parameters = parameters;
-            Body = body;
+            Children = children;
         }
 
         public override void Accept(IVisitor visitor)
