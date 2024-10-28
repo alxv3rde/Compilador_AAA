@@ -56,7 +56,7 @@ namespace Compilador_AAA.Traductor
         { TokenType.Private, @"\bprivate\b" },
         { TokenType.Protected, @"\bprotected\b" },
         { TokenType.Internal, @"\binternal\b" },
-        { TokenType.Keyword, @"\b(int|if|for|while|return|string|char|double)\b" },
+        { TokenType.Keyword, @"\b(int|if|for|while|return|string|char|double|class)\b" },
         { TokenType.NumericLiteral, @"(?<!\w)[+-]?((\d+(?:\.\d+)*)|(\.\d+))(e[+-]?\d+)?(?!\w)"},
         { TokenType.Identifier, @"\b[a-zA-Z0-9_]+\b" },
         { TokenType.Equals, @"=" },

@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Compilador_AAA.Views;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -26,7 +28,7 @@ namespace Compilador_AAA.Traductor
         {
             var program = new Program();
 
-            while (_currentLine <= _tokensByLine.Count)
+            while (_currentLine < _tokensByLine.Count)
             {
                 var statement = ParseStatement();
                 if (statement != null)
@@ -44,28 +46,43 @@ namespace Compilador_AAA.Traductor
 
         private Stmt ParseStatement()
         {
-            if (Match(TokenType.Public, TokenType.Private, TokenType.Protected, TokenType.Internal))
+            //TokenType AccessMod = TokenType.Public;
+            //if (Match(TokenType.Public, TokenType.Private, TokenType.Protected, TokenType.Internal))
+            //{
+
+            //}
+            if (Check(TokenType.Keyword, new string[] { "class" }))
             {
                 return ParseClassDeclaration();
             }
-            else if (Match(TokenType.Constant, TokenType.Keyword))
+            else if (Match(TokenType.Constant) is var matchResult && Check(TokenType.Keyword, new string[] { "int", "bool", "double", "string" }))
             {
-                return ParseVarDeclaration();
+                return ParseVarDeclaration(matchResult);
             }
             else
             {
                 // Aquí puedes agregar más declaraciones como funciones o expresiones
                 return null;
             }
+
         }
 
         private ClassDeclaration ParseClassDeclaration()
         {
-            var accessModifier = Previous().Type; // Almacena el modificador de acceso
-            Consume(TokenType.Identifier, "Se esperaba un nombre de clase después del modificador de acceso.");
+            var accessModifier = TokenType.Public; // Almacena el modificador de acceso
+
+            //// Se espera que el siguiente token sea la palabra clave 'class'
+            //Consume(TokenType.Keyword, "class", "Se esperaba la palabra clave 'class' después del modificador de acceso.", "SIN001");
+
+            // Ahora, consumimos el identificador del nombre de la clase
+            Consume(TokenType.Identifier, "Se esperaba un nombre de clase después de la palabra clave 'class'.", "SIN002");
             string className = Previous().Value;
 
-            Consume(TokenType.OpenBrace, "Se esperaba '{' después del nombre de la clase.");
+            Consume(TokenType.OpenParen, "Se esperaba '(' ", "SIN002");
+            //parametros aqui
+            Consume(TokenType.CloseParen, "Se esperaba ')' ", "SIN003");
+
+            Consume(TokenType.OpenBrace, "Se esperaba '{' ", "SIN004");
 
             List<Stmt> children = new List<Stmt>();
             while (!Check(TokenType.CloseBrace) && !IsAtEnd())
@@ -77,14 +94,14 @@ namespace Compilador_AAA.Traductor
                 }
             }
 
-            Consume(TokenType.CloseBrace, "Se esperaba '}' al final de la declaración de la clase.");
-            return new ClassDeclaration(className, new List<string>(), children);
+            Consume(TokenType.CloseBrace, "Se esperaba '}' al final de la declaración de la clase.", "SIN005");
+            return new ClassDeclaration(className, new List<string>(), children, accessModifier);
         }
 
-        private VarDeclaration ParseVarDeclaration()
+        private VarDeclaration ParseVarDeclaration(bool constant)
         {
-            bool isConstant = Match(TokenType.Constant);
-            Consume(TokenType.Identifier, "Se esperaba un identificador para la variable.");
+            bool isConstant = constant;
+            Consume(TokenType.Identifier, "Se esperaba un identificador para la variable.", "SIN006");
             string identifier = Previous().Value;
 
             Expr value = null;
@@ -93,7 +110,22 @@ namespace Compilador_AAA.Traductor
                 value = ParseExpression();
             }
 
-            Consume(TokenType.Semicolon, "Se esperaba ';' al final de la declaración de variable.");
+            Consume(TokenType.Semicolon, "Se esperaba ';' al final de la declaración de variable.", "SIN007");
+            return new VarDeclaration(isConstant, identifier, value);
+        }
+        private VarDeclaration ParseGlobalVarDeclaration()
+        {
+            bool isConstant = Match(TokenType.Constant);
+            Consume(TokenType.Identifier, "Se esperaba un identificador para la variable.", "SIN006");
+            string identifier = Previous().Value;
+
+            Expr value = null;
+            if (Match(TokenType.Equals))
+            {
+                value = ParseExpression();
+            }
+
+            Consume(TokenType.Semicolon, "Se esperaba ';' al final de la declaración de variable.", "SIN007");
             return new VarDeclaration(isConstant, identifier, value);
         }
 
@@ -112,6 +144,17 @@ namespace Compilador_AAA.Traductor
             {
                 _currentTokens = _tokensByLine[_currentLine];
             }
+        }
+        private bool MatchNotAdv(params TokenType[] tokenTypes)
+        {
+            foreach (var type in tokenTypes)
+            {
+                if (Check(type))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private bool Match(params TokenType[] tokenTypes)
@@ -132,6 +175,22 @@ namespace Compilador_AAA.Traductor
             if (IsAtEnd()) return false;
             return Peek().Type == type;
         }
+        private bool Check(TokenType token, string[] keywords)
+        {
+            if (Check(token))
+            {
+                foreach (var k in keywords)
+                {
+                    if (Peek().Value == k)
+                    {
+                        Advance();
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
 
         private Token Advance()
         {
@@ -141,6 +200,7 @@ namespace Compilador_AAA.Traductor
 
         private Token Peek()
         {
+
             return _currentTokens[_currentTokenIndex];
         }
 
@@ -151,9 +211,13 @@ namespace Compilador_AAA.Traductor
 
         private bool IsAtEnd()
         {
-            return _currentTokenIndex >= _currentTokens.Count || Peek().Type == TokenType.EOF;
+            if (_currentTokenIndex >= _currentTokens.Count || Peek().Type == TokenType.EOF)
+            {
+                return true;
+            }
+            return false;
         }
-        private Token Consume(TokenType expectedType, string errorMessage)
+        private Token Consume(TokenType expectedType, string errorMessage, string errorCode)
         {
             if (Check(expectedType))
             {
@@ -161,7 +225,21 @@ namespace Compilador_AAA.Traductor
             }
 
             // Si no coincide, lanza un error
-            throw new Exception($"Error de sintaxis: {errorMessage}. Se esperaba '{expectedType}', pero se encontró '{Peek().Type}'.");
+            string errorMsg = string.Format($"Error de sintaxis: {errorMessage} pero se encontró 'Peek().Value'.");
+            TranslatorView.HandleError(errorMsg, Peek().StartLine, errorCode);
+            return Advance();
+        }
+        private Token Consume(TokenType expectedType, string keyword, string errorMessage, string errorCode)
+        {
+            if (Check(expectedType) && Peek().Value == keyword)
+            {
+                return Advance(); // Avanza al siguiente token si coincide
+            }
+
+            // Si no coincide, lanza un error
+            string errorMsg = string.Format($"Error de sintaxis: {errorMessage} pero se encontró 'Peek().Value'.");
+            TranslatorView.HandleError(errorMsg, Peek().StartLine, errorCode);
+            return Advance();
         }
     }
 }

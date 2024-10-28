@@ -56,6 +56,7 @@ namespace Compilador_AAA.Traductor
 
         public Program() : base(NodeType.Program)
         {
+            
             children= new List<Stmt>();
         }
         public override void Accept(IVisitor visitor)
@@ -65,16 +66,18 @@ namespace Compilador_AAA.Traductor
     }
     public class ClassDeclaration : Stmt
     {
+        public TokenType AccessMod {  get; set; }
         public List<string> Parameters { get; set; }
         public string Name { get; set; }
         public List<Stmt> Children { get; set; }
 
-        public ClassDeclaration(string name, List<string> parameters, List<Stmt> children)
+        public ClassDeclaration(string name, List<string> parameters, List<Stmt> children, TokenType accessMod)
                     : base(NodeType.ClassDeclaration)
         {
             Name = name;
             Parameters = parameters;
             Children = children;
+            AccessMod = accessMod;
         }
 
         public override void Accept(IVisitor visitor)

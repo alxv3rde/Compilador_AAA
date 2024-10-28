@@ -64,7 +64,46 @@ namespace Compilador_AAA.Views
 
         private void btnTraducir_Click(object sender, RoutedEventArgs e)
         {
+            if (OriginalEditor.Text != string.Empty)
+            {
+                ErrorList.Clear();
+                TranslatedEditor.Text = string.Empty;
 
+                try
+                {
+                    Lexer lexer = new Lexer(OriginalEditor.Document);
+                    var tokensTuple = lexer.Tokenize();
+                    Parser pepe = new Parser(tokensTuple);
+                    pepe.Parse();
+
+                    for (int i = 1; i < tokensTuple.Keys.Count + 1; i++)
+                    {
+                        TranslatedEditor.Text += "block \n";
+
+                        for (int j = 0; j < tokensTuple.Where(kv => kv.Key == i)
+                              .Select(kv => kv.Value.Count)
+                              .FirstOrDefault(); j++)
+                        {
+                            if (tokensTuple.TryGetValue(i, out List<Token> valor))
+                            {
+
+                                string temp = valor[j].ToString();
+                                if (i != tokensTuple.Count - 1)
+                                    TranslatedEditor.Text += "\t'" + temp + "'" + ", \n";
+                                else
+                                    TranslatedEditor.Text += "\t'" + temp + "'\n";
+                            }
+                        }
+                        TranslatedEditor.Text += "End \n\n";
+                    }
+
+
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.ToString());
+                }
+            }
             BrushConverter bc = new BrushConverter();
             translatedheadercolor.Background = (Brush)bc.ConvertFrom("#878b4f");
 
@@ -133,44 +172,7 @@ namespace Compilador_AAA.Views
 
         private void OriginalEditor_TextChanged(object sender, EventArgs e)
         {
-            if (OriginalEditor.Text != string.Empty)
-            {
-                ErrorList.Clear();
-                TranslatedEditor.Text = string.Empty;
-
-                try
-                {
-                    Lexer lexer = new Lexer(OriginalEditor.Document);
-                    var tokensTuple = lexer.Tokenize();
-
-                    for (int i = 1; i < tokensTuple.Keys.Count + 1; i++)
-                    {
-                        TranslatedEditor.Text += "block \n";
-
-                        for (int j = 0; j < tokensTuple.Where(kv => kv.Key == i)
-                              .Select(kv => kv.Value.Count)
-                              .FirstOrDefault(); j++)
-                        {
-                            if (tokensTuple.TryGetValue(i, out List<Token> valor))
-                            {
-
-                                string temp = valor[j].ToString();
-                                if (i != tokensTuple.Count - 1)
-                                    TranslatedEditor.Text += "\t'" + temp + "'" + ", \n";
-                                else
-                                    TranslatedEditor.Text += "\t'" + temp + "'\n";
-                            }
-                        }
-                        TranslatedEditor.Text += "End \n\n";
-                    }
-
-
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("error");
-                }
-            }
+            
         }
 
 
