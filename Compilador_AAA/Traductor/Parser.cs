@@ -87,6 +87,7 @@ namespace Compilador_AAA.Traductor
             List<Stmt> children = new List<Stmt>();
             while (!Check(TokenType.CloseBrace) && !IsAtEnd())
             {
+
                 var statement = ParseStatement();
                 if (statement != null)
                 {
@@ -217,29 +218,44 @@ namespace Compilador_AAA.Traductor
             }
             return false;
         }
-        private Token Consume(TokenType expectedType, string errorMessage, string errorCode)
+        private void Consume(TokenType expectedType, string errorMessage, string errorCode)
         {
+            string errorMsg;
             if (Check(expectedType))
             {
-                return Advance(); // Avanza al siguiente token si coincide
+                Advance(); // Avanza al siguiente token si coincide
+            }else if (!IsAtEnd())
+            {
+                errorMsg = "Error de sintaxis: " + errorMessage + "pero se encontró" + Peek().Value+".";
+                TranslatorView.HandleError(errorMsg, Peek().StartLine, errorCode);
             }
-
-            // Si no coincide, lanza un error
-            string errorMsg = string.Format($"Error de sintaxis: {errorMessage} pero se encontró 'Peek().Value'.");
-            TranslatorView.HandleError(errorMsg, Peek().StartLine, errorCode);
-            return Advance();
+            else
+            {
+                errorMsg = "Error de sintaxis: "+ errorMessage;
+                TranslatorView.HandleError(errorMsg, Previous().StartLine, errorCode);
+            }
+            
         }
-        private Token Consume(TokenType expectedType, string keyword, string errorMessage, string errorCode)
+
+
+        private void Consume(TokenType expectedType, string keyword, string errorMessage, string errorCode)
         {
+            string errorMsg;
             if (Check(expectedType) && Peek().Value == keyword)
             {
-                return Advance(); // Avanza al siguiente token si coincide
+                 Advance(); // Avanza al siguiente token si coincide
+                 
+            }else if (!IsAtEnd())
+            {
+                errorMsg = "Error de sintaxis: " + errorMessage + "pero se encontró" + Peek().Value + ".";
+                TranslatorView.HandleError(errorMsg, Peek().StartLine, errorCode);
             }
-
-            // Si no coincide, lanza un error
-            string errorMsg = string.Format($"Error de sintaxis: {errorMessage} pero se encontró 'Peek().Value'.");
-            TranslatorView.HandleError(errorMsg, Peek().StartLine, errorCode);
-            return Advance();
+            else
+            {
+                errorMsg = "Error de sintaxis: " + errorMessage;
+                TranslatorView.HandleError(errorMsg, Previous().StartLine, errorCode);
+            }
         }
     }
 }
+
