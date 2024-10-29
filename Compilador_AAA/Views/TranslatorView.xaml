@@ -295,7 +295,12 @@ RelativeSource={RelativeSource TemplatedParent}}">
                                    FontSize="12"
                                    Foreground="White" />
                         </StackPanel>
-                    </Grid>
+                            <Button HorizontalAlignment="Right"
+                                    Height="20"
+                                    Content="Debug"
+                                    Background="Gray"
+                                    VerticalAlignment="Center" Name="btnDebug" Click="btnDebug_Click"></Button>
+                        </Grid>
                     <Grid Grid.Row="1">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="21" />
