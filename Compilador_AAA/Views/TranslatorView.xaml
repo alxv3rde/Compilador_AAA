@@ -297,7 +297,7 @@ RelativeSource={RelativeSource TemplatedParent}}">
                         </StackPanel>
                             <Button HorizontalAlignment="Right"
                                     Height="20"
-                                    Content="Debug"
+                                    Content="RT:ON"
                                     Background="Gray"
                                     VerticalAlignment="Center" Name="btnDebug" Click="btnDebug_Click"></Button>
                         </Grid>

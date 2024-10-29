@@ -29,7 +29,7 @@ namespace Compilador_AAA.Views
     /// </summary>
     public partial class TranslatorView : UserControl
     {
-        
+
         public TranslatorView()
         {
             InitializeComponent();
@@ -40,7 +40,7 @@ namespace Compilador_AAA.Views
         private void TranslatorView_Loaded(object sender, RoutedEventArgs e)
         {
             OriginalEditor.Focus();
-            
+
         }
 
         public static ObservableCollection<ErrorRow> ErrorList { get; set; } = new ObservableCollection<ErrorRow>();
@@ -232,9 +232,16 @@ namespace Compilador_AAA.Views
         private bool RTErrorList = true;
         private void btnDebug_Click(object sender, RoutedEventArgs e)
         {
-            if(RTErrorList)
+            if (RTErrorList)
+            {
+                btnDebug.Content = "RT:OFF";
                 RTErrorList = false;
-            else RTErrorList = true;
+            }
+            else
+            {
+                RTErrorList = true;
+                btnDebug.Content = "RT:ON";
+            }
         }
     }
 }
