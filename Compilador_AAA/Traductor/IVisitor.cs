@@ -28,6 +28,7 @@ namespace Compilador_AAA.Traductor
         //Literals
         void Visit(Identifier identifier);
         void Visit(NumericLiteral numericLiteral);
+        void Visit(StringLiteral stringLiteral);
         void Visit(Property property);
         void Visit(ObjectLiteral objectLiteral);
     }

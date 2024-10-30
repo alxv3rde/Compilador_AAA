@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
@@ -175,7 +176,7 @@ namespace Compilador_AAA.Traductor
         //    }
 
         //    Consume(TokenType.CloseBrace, "Se esperaba '}' al final de la declaración de la clase.", "SIN005");
-        //    return new FunctionDeclaration();
+        //    return new FunctionDeclaration(funcName, parameters, children);
         //}
 
         private VarDeclaration ParseVarDeclaration(bool constant)
@@ -184,7 +185,7 @@ namespace Compilador_AAA.Traductor
             int currentLineTemp = _currentLine;
             int currentTokenIndexTemp = _currentTokenIndex;
             string identifier = null;
-            string keyword = null;
+            string keyword = "int";
             if (Consume(TokenType.Keyword, "Se esperaba un un tipo de dato", "SIN007"))
             {
                 keyword = _currentLine > currentLineTemp
@@ -197,30 +198,42 @@ namespace Compilador_AAA.Traductor
                             ? Previous(currentLineTemp, currentTokenIndexTemp).Value
                             : Previous().Value;
             }
-            string value = null;
+            Expr value = null;
             if (Match(TokenType.Equals))
             {
                 value = ParseExpression();
             }
 
-            Consume(TokenType.Semicolon, "Se esperaba ';' al final de la declaración de variable.", "SIN007");
-            return new VarDeclaration(currentLineTemp, isConstant, identifier, value);
+            if(Consume(TokenType.Semicolon, "Se esperaba ';' al final de la declaración de variable.", "SIN007")&&value!=null)
+            {
+                    return new VarDeclaration(keyword == "int" ? TokenType.NumericLiteral : TokenType.StringLiteral, currentLineTemp, isConstant, identifier, value);
+            }return null;
+            
         }
 
-        private string ParseExpression()
+        private Expr ParseExpression()
         {
             string keyword = null;
             int currentLineTemp = _currentLine;
             int currentTokenIndexTemp = _currentTokenIndex;
             string expr = Previous().Value;
-           
+            var tempToken = Peek();
             if  (Consume(new TokenType[] {TokenType.NumericLiteral,TokenType.StringLiteral}, "Se esperaba una expresión ", "SIN008"))
             {
                 expr = _currentLine > currentLineTemp
                             ? Previous(currentLineTemp, currentTokenIndexTemp).Value
                             : Previous().Value;
             }
-            return expr;
+            if(tempToken.Type == TokenType.NumericLiteral)
+            {
+                
+                return new NumericLiteral(Convert.ToDouble(expr), currentLineTemp);
+            }else if(tempToken.Type == TokenType.StringLiteral)
+            {
+                return new StringLiteral(expr, currentLineTemp);
+            }
+            return null;
+            
 
         }
         private Token Previous(int previousLine, int previousIndexToken)
@@ -338,12 +351,12 @@ namespace Compilador_AAA.Traductor
             else if (!IsAtEndOfLine())
             {
                 errorMsg = "Error de sintaxis: " + errorMessage;
-                TranslatorView.HandleError(errorMsg, expectedType == TokenType.OpenBrace ? Peek().StartLine - 1 : Peek().StartLine, errorCode);
+                TranslatorView.HandleError(errorMsg + " columna:" + Peek().Start, Peek().StartLine - 1 , errorCode);
                 return false;
             }
 
             errorMsg = "Error de sintaxis: " + errorMessage;
-            TranslatorView.HandleError(errorMsg, Previous().StartLine, errorCode);
+            TranslatorView.HandleError(errorMsg + " columna:" + Previous().Start, Previous().StartLine, errorCode);
             return false;
 
         }
@@ -360,16 +373,17 @@ namespace Compilador_AAA.Traductor
             else if (!IsAtEndOfLine())
             {
                 errorMsg = "Error de sintaxis: " + errorMessage;
-                TranslatorView.HandleError(errorMsg, Peek().StartLine, errorCode);
+                TranslatorView.HandleError(errorMsg+" columna:"+ Peek().Start, Peek().StartLine-1, errorCode);
                 return false;
             }
 
             errorMsg = "Error de sintaxis: " + errorMessage;
-            TranslatorView.HandleError(errorMsg, Previous().StartLine, errorCode);
+            TranslatorView.HandleError(errorMsg + " columna:" + Previous().Start, Previous().StartLine, errorCode);
             return false;
         }
         private bool Consume(TokenType[] expectedType, string errorMessage, string errorCode)
         {
+            string errorMsg;
             foreach (var type in expectedType)
             {
                 if (Check(type))
@@ -378,13 +392,17 @@ namespace Compilador_AAA.Traductor
                     return true;
                 }
             }
+            if (!IsAtEndOfLine())
+            {
+                errorMsg = "Error de sintaxis: " + errorMessage;
+                TranslatorView.HandleError(errorMsg + " columna:" + Peek().Start, Peek().StartLine-1, errorCode);
+                return false;
+            }
 
-            string errorMsg = "Error de sintaxis: " + errorMessage;
-            int errorLine = IsAtEndOfLine() ? Previous().StartLine : Peek().StartLine;
-
-            // Manejar el error
-            TranslatorView.HandleError(errorMsg, errorLine, errorCode);
+            errorMsg = "Error de sintaxis: " + errorMessage;
+            TranslatorView.HandleError(errorMsg + " columna:" + Previous().Start, Previous().StartLine, errorCode);
             return false;
+
         }
     }
 }

@@ -108,7 +108,6 @@ namespace Compilador_AAA.Views
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.ToString());
                 }
             }
             BrushConverter bc = new BrushConverter();
@@ -222,7 +221,6 @@ namespace Compilador_AAA.Views
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(ex.ToString());
                     }
                 }
                 BrushConverter bc = new BrushConverter();

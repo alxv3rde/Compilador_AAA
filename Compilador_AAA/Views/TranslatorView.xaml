@@ -390,7 +390,7 @@ RelativeSource={RelativeSource TemplatedParent}}">
                                     BorderBrush="{StaticResource BorderDarkGrayMainBG}"
                                     BorderThickness="1,0,1,0"
                                     Grid.RowSpan="2" />
-                            <Grid Margin="-2198,291,1443,-680"
+                            <Grid 
                                   Grid.Row="1" />
                             <avalonEdit:TextEditor Grid.Column="1"
                                                    x:Name="TranslatedEditor"

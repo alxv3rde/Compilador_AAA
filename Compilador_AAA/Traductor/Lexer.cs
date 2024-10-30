@@ -44,7 +44,7 @@ namespace Compilador_AAA.Traductor
     public class Lexer
     {
         private TextDocument _code; // El código fuente
-        private int _position; // Posición actual en el código
+        private int _position; // columna actual en el código
         private int _currentLine;
 
         private Dictionary<TokenType, string> _tokenPatterns = new Dictionary<TokenType, string>()
@@ -93,7 +93,7 @@ namespace Compilador_AAA.Traductor
 
                 // Obtener el texto de la línea
                 string lineText = _code.GetText(line);
-                _position = 0; // Reiniciar la posición para cada línea
+                _position = 0; // Reiniciar la columna para cada línea
 
                 while (_position < lineText.Length)
                 {
@@ -111,13 +111,13 @@ namespace Compilador_AAA.Traductor
                         // Verificar identificadores que comienzan con un número
                         if (token.Type == TokenType.Identifier && char.IsDigit(token.Value[0]))
                         {
-                            TranslatorView.HandleError($"Identificador no puede comenzar con un número en la posición {_position}: '{token.Value}'", token.EndLine,"LEX001");
+                            TranslatorView.HandleError($"Identificador no puede comenzar con un número en la columna {_position}: '{token.Value}'", token.EndLine,"LEX001");
                         }
 
                         // Verificar números mal formateados con múltiples puntos decimales
                         if (token.Type == TokenType.NumericLiteral && token.Value.Count(c => c == '.') > 1)
                         {
-                            TranslatorView.HandleError($"Número mal formateado en la posición {_position}: '{token.Value}'", token.EndLine, "LEX002");
+                            TranslatorView.HandleError($"Número mal formateado en la columna {_position}: '{token.Value}'", token.EndLine, "LEX002");
                         }
 
                         currentTokens.Add(token);
@@ -125,7 +125,7 @@ namespace Compilador_AAA.Traductor
                     else
                     {
                         // Manejo de errores
-                        TranslatorView.HandleError($"Token no reconocido en la posición {_position}: '{lineText[_position]}'", _currentLine, "LEX003");
+                        TranslatorView.HandleError($"Token no reconocido en la columna {_position}: '{lineText[_position]}'", _currentLine, "LEX003");
                         _position++;
                     }
                 }
@@ -148,7 +148,7 @@ namespace Compilador_AAA.Traductor
 
         private Token GetNextToken(string lineText)
         {
-            // Contadores para la línea y la posición en la línea
+            // Contadores para la línea y la columna en la línea
             int startLine = _currentLine;
             int startColumn = 1;
             // Verificar manualmente los literales de cadena
@@ -173,11 +173,11 @@ namespace Compilador_AAA.Traductor
                 // Si alcanzamos el final sin encontrar la comilla de cierre
                 if (_position >= lineText.Length || lineText[_position] != quoteChar)
                 {
-                    TranslatorView.HandleError($"Literal de cadena sin cerrar que comienza en la posición {start}.", startLine, "LEX004");
+                    TranslatorView.HandleError($"Literal de cadena sin cerrar que comienza en la columna {startColumn}.", startLine, "LEX004");
                 }
                 else
                 {
-                    // Avanzar la posición para incluir la comilla de cierre
+                    // Avanzar la columna para incluir la comilla de cierre
                     _position++;
                 }
 
@@ -189,11 +189,11 @@ namespace Compilador_AAA.Traductor
             foreach (var pattern in _tokenPatterns)
             {
                 Match match = Regex.Match(lineText.Substring(_position), pattern.Value);
-                if (match.Success && match.Index == 0) // El token debe comenzar en la posición actual
+                if (match.Success && match.Index == 0) // El token debe comenzar en la columna actual
                 {
                     int start = _position;
                     int end = _position + match.Length - 1; // Fin del token
-                    _position += match.Length; // Avanzamos la posición
+                    _position += match.Length; // Avanzamos la columna
 
                     // Calcular la línea de fin
                     int endLine = startLine;

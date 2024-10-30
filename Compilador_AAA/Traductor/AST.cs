@@ -33,6 +33,7 @@ namespace Compilador_AAA.Traductor
         Property,               
         ObjectLiteral,          
         NumericLiteral,         
+        StringLiteral,         
         Identifier
     }
     
@@ -97,16 +98,18 @@ namespace Compilador_AAA.Traductor
 
     public class VarDeclaration : Stmt
     {
+        public TokenType VarType { get; set; }
         public bool Constant { get; set; }
         public string Identifier { get; set; }
-        public string Value { get; set; }
+        public Expr Value { get; set; }
 
-        public VarDeclaration(int startLine,bool constant, string identifier, string value = null)
+        public VarDeclaration(TokenType varType,int startLine,bool constant, string identifier, Expr value = null)
             : base(NodeType.VarDeclaration, startLine)
         {
             Constant = constant;
             Identifier = identifier;
             Value = value;
+            VarType = varType;
         }
         public override void Accept(IVisitor visitor)
         {
@@ -232,6 +235,19 @@ namespace Compilador_AAA.Traductor
         public double Value { get; set; }
 
         public NumericLiteral(double value,int startLine) : base(NodeType.NumericLiteral, startLine)
+        {
+            Value = value;
+        }
+        public override void Accept(IVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
+    }
+    public class StringLiteral : Expr
+    {
+        public string Value { get; set; }
+
+        public StringLiteral(string value, int startLine) : base(NodeType.StringLiteral, startLine)
         {
             Value = value;
         }

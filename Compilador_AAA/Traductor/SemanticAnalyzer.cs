@@ -2,6 +2,7 @@
 using Compilador_AAA.Views;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Text;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -40,10 +41,18 @@ namespace Compilador_AAA.Traductor
         public void Visit(VarDeclaration varDeclaration)
         {
             // Verificar si la variable ya está declarada
-            if (!_variables.Add(varDeclaration.Identifier))
+             if (!_variables.Add(varDeclaration.Identifier))
             {
                 // Error: variable ya definida
-                TranslatorView.HandleError("La variable '" + varDeclaration.Identifier + "' ya está definida.", varDeclaration.StartLine,"SEM001");
+                TranslatorView.HandleError("La variable '" + varDeclaration.Identifier + "' ya está definida en la columna: ", varDeclaration.StartLine,"SEM002");
+            }
+            else if(varDeclaration.VarType == TokenType.NumericLiteral && varDeclaration.Value.Kind == NodeType.StringLiteral)
+            {
+                TranslatorView.HandleError("Los datos tipo 'int' no pueden contener cadenas de texto. en la columna: ", varDeclaration.StartLine, "SEM004");
+            }
+            else if (varDeclaration.VarType == TokenType.StringLiteral && varDeclaration.Value.Kind == NodeType.NumericLiteral)
+            {
+                TranslatorView.HandleError("Los datos tipo 'string' no pueden literales numéricos. en la columna: ", varDeclaration.StartLine, "SEM005");
             }
         }
 
@@ -125,7 +134,14 @@ namespace Compilador_AAA.Traductor
         // Implementar otros métodos de visita según sea necesario
         public void Visit(MemberExpr memberExpr) { /* Implementar según sea necesario */ }
         
-        public void Visit(NumericLiteral numericLiteral) { /* Implementar según sea necesario */ }
+        public void Visit(StringLiteral numericLiteral) 
+        { 
+            
+        }
+        public void Visit(NumericLiteral numericLiteral)
+        { 
+            
+        }
         public void Visit(Property property) { /* Implementar según sea necesario */ }
         public void Visit(ObjectLiteral objectLiteral) { /* Implementar según sea necesario */ }
     }
