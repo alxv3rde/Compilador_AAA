@@ -22,7 +22,8 @@ namespace Compilador_AAA.Traductor
         Keyword,
         Identifier,
         Literal,
-        NumericLiteral,
+        IntegerLiteral,
+        DoubleLiteral,
         StringLiteral,
         Operator,
         BinaryOperator,
@@ -57,7 +58,9 @@ namespace Compilador_AAA.Traductor
         { TokenType.Protected, @"\bprotected\b" },
         { TokenType.Internal, @"\binternal\b" },
         { TokenType.Keyword, @"\b(int|if|for|while|return|string|char|double|class|func)\b" },
-        { TokenType.NumericLiteral, @"(?<!\w)[+-]?((\d+(?:\.\d+)*)|(\.\d+))(e[+-]?\d+)?(?!\w)"},
+        { TokenType.DoubleLiteral,  @"(?<!\w)(\.\d+|\d+\.\d+(\.\d+)*)(e[+-]?\d+)?(?!\w)" },
+        { TokenType.IntegerLiteral, @"(?<!\w)\d+(?!\w)" },
+        
         { TokenType.Identifier, @"\b[a-zA-Z0-9_]+\b" },
         { TokenType.Equals, @"=" },
         { TokenType.Operator, @"==|[+\-*/%&|^!=<>]=?|&&|\|\|" },
@@ -115,7 +118,7 @@ namespace Compilador_AAA.Traductor
                         }
 
                         // Verificar números mal formateados con múltiples puntos decimales
-                        if (token.Type == TokenType.NumericLiteral && token.Value.Count(c => c == '.') > 1)
+                        if (token.Type == TokenType.DoubleLiteral && token.Value.Count(c => c == '.') > 1)
                         {
                             TranslatorView.HandleError($"Número mal formateado en la posición {_position}: '{token.Value}'", token.EndLine, "LEX002");
                         }

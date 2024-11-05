@@ -36,15 +36,30 @@ namespace Compilador_AAA.Traductor
                 child.Accept(this);
             }
         }
+        public void Visit(IntegerLiteral integerLiteral) { /* Implementar según sea necesario */ }
+        public void Visit(StringLiteral stringLiteral) { /* Implementar según sea necesario */ }
+        public void Visit(DoubleLiteral doubleLiteral) { /* Implementar según sea necesario */ }
 
         public void Visit(VarDeclaration varDeclaration)
         {
             // Verificar si la variable ya está declarada
-            if (!_variables.Add(varDeclaration.Identifier))
+            if (!_variables.Add(varDeclaration.Identifier.ID))
             {
                 // Error: variable ya definida
-                TranslatorView.HandleError("La variable '" + varDeclaration.Identifier + "' ya está definida.", varDeclaration.StartLine,"SEM001");
+                TranslatorView.HandleError("La variable '" + varDeclaration.Identifier + "' ya está definida.", varDeclaration.StartLine, "SEM002");
             }
+            //else if (varDeclaration.VarType == "int" && varDeclaration.Value.Value.Kind != NodeType.IntegerLiteral)
+            //{
+            //    TranslatorView.HandleError(("Valor incorrecto para la variable entera"), varDeclaration.StartLine, "SEM003");
+            //}
+            //else if (varDeclaration.VarType == "string" && varDeclaration.Value.Value.Kind != NodeType.StringLiteral)
+            //{
+            //    TranslatorView.HandleError(("Valor incorrecto para la variable cadena"), varDeclaration.StartLine, "SEM004");
+            //}
+            //else if (varDeclaration.VarType == "double" && varDeclaration.Value.Value.Kind != NodeType.DoubleLiteral)
+            //{
+            //    TranslatorView.HandleError(("Valor incorrecto para la variable double"), varDeclaration.StartLine, "SEM005");
+            //}
         }
 
         public void Visit(FunctionDeclaration functionDeclaration)
@@ -61,10 +76,10 @@ namespace Compilador_AAA.Traductor
                 // Se asume que los parámetros son identificadores
                 if (param is Identifier identifier)
                 {
-                    if (!_variables.Add(identifier.Symbol))
+                    if (!_variables.Add(identifier.ID))
                     {
                         // Error: parámetro ya definido
-                        Console.WriteLine($"El parámetro '{identifier.Symbol}' ya está definido en la función '{functionDeclaration.Name}'.");
+                        Console.WriteLine($"El parámetro '{identifier.ID}' ya está definido en la función '{functionDeclaration.Name}'.");
                     }
                 }
             }
@@ -78,11 +93,11 @@ namespace Compilador_AAA.Traductor
         public void Visit(AssignmentExpr assignmentExpr)
         {
             // Verificar que la variable asignada esté declarada
-            if (assignmentExpr.Assignee is Identifier identifier)
+            if (assignmentExpr.Identifier is Identifier identifier)
             {
-                if (!_variables.Contains(identifier.Symbol))
+                if (!_variables.Contains(identifier.ID))
                 {
-                    Console.WriteLine($"La variable '{identifier.Symbol}' no está declarada.");
+                    Console.WriteLine($"La variable '{identifier.ID}' no está declarada.");
                 }
             }
 
@@ -102,9 +117,9 @@ namespace Compilador_AAA.Traductor
             // Verificar que la función llamada esté definida
             if (callExpr.Caller is Identifier caller)
             {
-                if (!_functions.Contains(caller.Symbol))
+                if (!_functions.Contains(caller.ID))
                 {
-                    Console.WriteLine($"La función '{caller.Symbol}' no está definida.");
+                    Console.WriteLine($"La función '{caller.ID}' no está definida.");
                 }
             }
 
@@ -114,18 +129,18 @@ namespace Compilador_AAA.Traductor
                 arg.Accept(this);
             }
         }
-        public void Visit(Identifier identifier) 
+        public void Visit(Identifier identifier)
         {
-            if (!_variables.Contains(identifier.Symbol))
+            if (!_variables.Contains(identifier.ID))
             {
-                TranslatorView.HandleError($"El nombre '{identifier.Symbol}' no está definido.",identifier.StartLine,"SEM003");
+                TranslatorView.HandleError($"El nombre '{identifier.ID}' no está definido.", identifier.StartLine, "SEM003");
             }
         }
 
         // Implementar otros métodos de visita según sea necesario
         public void Visit(MemberExpr memberExpr) { /* Implementar según sea necesario */ }
-        
-        public void Visit(NumericLiteral numericLiteral) { /* Implementar según sea necesario */ }
+
+
         public void Visit(Property property) { /* Implementar según sea necesario */ }
         public void Visit(ObjectLiteral objectLiteral) { /* Implementar según sea necesario */ }
     }

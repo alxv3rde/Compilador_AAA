@@ -12,39 +12,42 @@ namespace Compilador_AAA.Traductor
         Program,
 
         // DECLARATIONS
-        ClassDeclaration,       
-        VarDeclaration,         
-        FunctionDeclaration,    
+        ClassDeclaration,
+        VarDeclaration,
+        FunctionDeclaration,
 
         // STATEMENTS
-        ExpressionStatement,    
-        IfStatement,            
-        ForStatement,           
-        WhileStatement,         
-        ReturnStatement,        
+        ExpressionStatement,
+        IfStatement,
+        ForStatement,
+        WhileStatement,
+        ReturnStatement,
 
         // EXPRESSIONS
-        AssignmentExpr,         
-        MemberExpr,             
-        CallExpr,               
-        BinaryExpr,             
+        AssignmentExpr,
+        MemberExpr,
+        CallExpr,
+        BinaryExpr, 
 
         // LITERALS
-        Property,               
-        ObjectLiteral,          
-        NumericLiteral,         
+        Property,
+        NumericLiteral,
+        ObjectLiteral,
+        StringLiteral,
+        IntegerLiteral,
+        DoubleLiteral,
         Identifier
     }
-    
+
     // STATEMENT BASE CLASS
     public abstract class Stmt
     {
         private NodeType program;
 
         public NodeType Kind { get; protected set; }
-        public int StartLine {  get; set; }
-        
-        protected Stmt(NodeType kind,int startLine)
+        public int StartLine { get; set; }
+
+        protected Stmt(NodeType kind, int startLine)
         {
             Kind = kind;
             StartLine = startLine;
@@ -65,8 +68,8 @@ namespace Compilador_AAA.Traductor
 
         public Program() : base(NodeType.Program)
         {
-            
-            children= new List<Stmt>();
+
+            children = new List<Stmt>();
         }
         public override void Accept(IVisitor visitor)
         {
@@ -75,13 +78,13 @@ namespace Compilador_AAA.Traductor
     }
     public class ClassDeclaration : Stmt
     {
-        public TokenType AccessMod {  get; set; }
+        public TokenType AccessMod { get; set; }
         public List<string> Parameters { get; set; }
         public string Name { get; set; }
         public List<Stmt> Children { get; set; }
 
         public ClassDeclaration(string name, List<string> parameters, List<Stmt> children, TokenType accessMod, int startLine)
-                    : base(NodeType.ClassDeclaration,startLine)
+                    : base(NodeType.ClassDeclaration, startLine)
         {
             Name = name;
             Parameters = parameters;
@@ -97,16 +100,18 @@ namespace Compilador_AAA.Traductor
 
     public class VarDeclaration : Stmt
     {
+        public string VarType { get; set; }
         public bool Constant { get; set; }
-        public string Identifier { get; set; }
-        public string Value { get; set; }
+        public Identifier Identifier { get; set; }
+        public AssignmentExpr Value { get; set; }
 
-        public VarDeclaration(int startLine,bool constant, string identifier, string value = null)
+        public VarDeclaration(string varType, int startLine, bool constant, Identifier identifier, AssignmentExpr value = null)
             : base(NodeType.VarDeclaration, startLine)
         {
             Constant = constant;
             Identifier = identifier;
             Value = value;
+            VarType = varType;
         }
         public override void Accept(IVisitor visitor)
         {
@@ -133,22 +138,21 @@ namespace Compilador_AAA.Traductor
             visitor.Visit(this);
         }
     }
-
+    
     // EXPRESSION BASE CLASS
     public abstract class Expr : Stmt
     {
-        protected Expr(NodeType kind, int startLine) : base(kind,startLine) { }
+        protected Expr(NodeType kind, int startLine) : base(kind, startLine) { }
     }
-
     public class AssignmentExpr : Expr
     {
-        public Expr Assignee { get; set; }
-        public Expr Value { get; set; }
+        public Identifier? Identifier { get; set; }
+        public Expr? Value { get; set; }
 
-        public AssignmentExpr(Expr assignee, Expr value,int startLine)
-            : base(NodeType.AssignmentExpr,startLine)
+        public AssignmentExpr(Identifier? identifier, Expr? value, int startLine)
+            : base(NodeType.AssignmentExpr, startLine)
         {
-            Assignee = assignee;
+            identifier = identifier;
             Value = value;
         }
         public override void Accept(IVisitor visitor)
@@ -156,6 +160,7 @@ namespace Compilador_AAA.Traductor
             visitor.Visit(this);
         }
     }
+    
 
     public class BinaryExpr : Expr
     {
@@ -163,7 +168,7 @@ namespace Compilador_AAA.Traductor
         public Expr Right { get; set; }
         public string Operator { get; set; } // Consider defining an enum for specific operators
 
-        public BinaryExpr(Expr left, Expr right, string operatorSymbol,int startLine)
+        public BinaryExpr(Expr left, Expr right, string operatorSymbol, int startLine)
             : base(NodeType.BinaryExpr, startLine)
         {
             Left = left;
@@ -181,7 +186,7 @@ namespace Compilador_AAA.Traductor
         public List<Expr> Arguments { get; set; }
         public Expr Caller { get; set; }
 
-        public CallExpr(Expr caller, List<Expr> arguments,int startLine)
+        public CallExpr(Expr caller, List<Expr> arguments, int startLine)
             : base(NodeType.CallExpr, startLine)
         {
             Caller = caller;
@@ -199,8 +204,8 @@ namespace Compilador_AAA.Traductor
         public Expr Property { get; set; }
         public bool Computed { get; set; }
 
-        public MemberExpr(Expr obj, Expr property, bool computed,int startLine)
-            : base(NodeType.MemberExpr,startLine)
+        public MemberExpr(Expr obj, Expr property, bool computed, int startLine)
+            : base(NodeType.MemberExpr, startLine)
         {
             Object = obj;
             Property = property;
@@ -215,11 +220,11 @@ namespace Compilador_AAA.Traductor
     // LITERALS
     public class Identifier : Expr
     {
-        public string Symbol { get; set; }
+        public string ID { get; set; }
 
-        public Identifier(string symbol, int startLine) : base(NodeType.Identifier,startLine)
+        public Identifier(string iD, int startLine) : base(NodeType.Identifier, startLine)
         {
-            Symbol = symbol;
+            ID = iD;
         }
         public override void Accept(IVisitor visitor)
         {
@@ -227,11 +232,37 @@ namespace Compilador_AAA.Traductor
         }
     }
 
-    public class NumericLiteral : Expr
+    public class IntegerLiteral : Expr
+    {
+        public int Value { get; set; }
+
+        public IntegerLiteral(int value, int startLine) : base(NodeType.IntegerLiteral, startLine)
+        {
+            Value = value;
+        }
+        public override void Accept(IVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
+    }
+    public class DoubleLiteral : Expr
     {
         public double Value { get; set; }
 
-        public NumericLiteral(double value,int startLine) : base(NodeType.NumericLiteral, startLine)
+        public DoubleLiteral(double value, int startLine) : base(NodeType.DoubleLiteral, startLine)
+        {
+            Value = value;
+        }
+        public override void Accept(IVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
+    }
+    public class StringLiteral : Expr
+    {
+        public string Value { get; set; }
+
+        public StringLiteral(string value, int startLine) : base(NodeType.StringLiteral, startLine)
         {
             Value = value;
         }
@@ -246,7 +277,7 @@ namespace Compilador_AAA.Traductor
         public string Key { get; set; }
         public Expr Value { get; set; }
 
-        public Property(int startLine,string key, Expr value = null) : base(NodeType.Property,startLine)
+        public Property(int startLine, string key, Expr value = null) : base(NodeType.Property, startLine)
         {
             Key = key;
             Value = value;
@@ -254,7 +285,7 @@ namespace Compilador_AAA.Traductor
         public override void Accept(IVisitor visitor)
         {
             visitor.Visit(this);
-            
+
         }
     }
 
@@ -262,7 +293,7 @@ namespace Compilador_AAA.Traductor
     {
         public List<Property> Properties { get; set; }
 
-        public ObjectLiteral(List<Property> properties,int startLine) : base(NodeType.ObjectLiteral,startLine)
+        public ObjectLiteral(List<Property> properties, int startLine) : base(NodeType.ObjectLiteral, startLine)
         {
             Properties = properties;
         }

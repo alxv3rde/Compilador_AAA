@@ -32,6 +32,7 @@ namespace Compilador_AAA.Views
 
         public TranslatorView()
         {
+            ;
             InitializeComponent();
             Loaded += TranslatorView_Loaded;
             lvErrores.ItemsSource = ErrorList;

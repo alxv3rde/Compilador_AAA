@@ -6,6 +6,8 @@ using System.Linq;
 using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Windows.Media.Media3D;
 
 namespace Compilador_AAA.Traductor
 {
@@ -48,12 +50,12 @@ namespace Compilador_AAA.Traductor
         private Stmt ParseStatement()
         {
             IsAtEndOfLine();
-            if (Check(TokenType.Keyword, new string[] { "class" }))
+            if (Check(TokenType.Keyword, ["class"]))
             {
                 Advance(); //avanza una posicion imitando el metodo Match()
                 return ParseClassDeclaration();
             }
-            else if (Check(TokenType.Keyword, new string[] { "int", "bool", "double", "string" }))
+            else if (Check(TokenType.Keyword, ["int", "bool", "double", "string" ]))
             {
                 return ParseVarDeclaration(true);
 
@@ -62,27 +64,26 @@ namespace Compilador_AAA.Traductor
             {
                 return ParseIdentifier();
             }
-            else if (Match(TokenType.NumericLiteral))
-            {
-                return ParseNumericLiteral();
-            }
             else
             {
                 return null;
             }
 
         }
-        private Expr ParseIdentifier()
+
+        private Identifier ParseIdentifier()
         {
 
             string identifier = Previous().Value;
             return new Identifier(identifier,_currentLine);
         }
+
         private Expr ParseNumericLiteral()
         {
             string numericL = Previous().Value;
             return new Identifier(numericL,_currentLine);
         }
+
         private ClassDeclaration ParseClassDeclaration()
         {
             var accessModifier = TokenType.Public; // Almacena el modificador de acceso
@@ -99,14 +100,9 @@ namespace Compilador_AAA.Traductor
                             : Previous().Value;
             }
 
-            if (IsAtEndOfLine() && !IsAtEndOfFile())
-            {
-                Consume(TokenType.OpenBrace, "Se esperaba '{' ", "SIN004");
-            }
-            else
-            {
-                Consume(TokenType.OpenBrace, "Se esperaba '{' ", "SIN004");
-            }
+           
+            Consume(TokenType.OpenBrace, "Se esperaba '{' ", "SIN004");
+
             List<Stmt> children = new List<Stmt>();
             while (!Check(TokenType.CloseBrace) && !IsAtEndOfFile())
             {
@@ -115,113 +111,147 @@ namespace Compilador_AAA.Traductor
                 {
                     children.Add(statement);
                 }
-                //else
-                //{
-                //    Advance();
-                //}
+                else
+                {
+                    Advance();
+                }
+                
             }
 
             Consume(TokenType.CloseBrace, "Se esperaba '}' al final de la declaración de la clase.", "SIN005");
             return new ClassDeclaration(className, new List<string>(), children, accessModifier,currentLineTemp);
         }
-        //private FunctionDeclaration ParseFunctionDeclaration()
-        //{
-        //    var accessModifier = TokenType.Public; // Almacena el modificador de acceso
-
-        //    //// Se espera que el siguiente token sea la palabra clave 'class'
-        //    //Consume(TokenType.Keyword, "class", "Se esperaba la palabra clave 'class' después del modificador de acceso.", "SIN001");
-        //    int currentLineTemp = _currentLine;
-        //    int currentTokenIndexTemp = _currentTokenIndex;
-        //    // Ahora, consumimos el identificador del nombre de la clase
-        //    string funcName = null;
-
-        //    if (Consume(TokenType.Identifier, "Se esperaba un identificador después de la palabra clave 'func'.", "SIN001"))
-        //    {
-        //        funcName = _currentLine > currentLineTemp
-        //                    ? Previous(currentLineTemp, currentTokenIndexTemp).Value
-        //                    : Previous().Value;
-        //    }
-        //    Consume(TokenType.OpenBrace, "Se esperaba '(' ", "SIN003");
-        //    List<Stmt> parameters = new List<Stmt>();
-        //    while (!Check(TokenType.CloseParen) && !IsAtEndOfFile())
-        //    {
-        //        if (Consume(TokenType.Keyword, "Se esperaba un un tipo de dato", "SIN007"))
-        //        {
-        //            parameters.Add(ParseVarDeclaration(true));
-        //        }
-        //        else
-        //        {
-
-        //        }
-        //    }
-        //    Consume(TokenType.OpenBrace, "Se esperaba ')' ", "SIN003");
-
-        //    if (IsAtEndOfLine() && !IsAtEndOfFile())
-        //    {
-        //        Consume(TokenType.OpenBrace, "Se esperaba '{' ", "SIN004");
-        //    }
-        //    else
-        //    {
-        //        Consume(TokenType.OpenBrace, "Se esperaba '{' ", "SIN004");
-        //    }
-        //    List<Stmt> children = new List<Stmt>();
-        //    while (!Check(TokenType.CloseBrace) && !IsAtEndOfFile())
-        //    {
-        //        var statement = ParseStatement();
-        //        if (statement != null)
-        //        {
-        //            children.Add(statement);
-        //        }
-        //    }
-
-        //    Consume(TokenType.CloseBrace, "Se esperaba '}' al final de la declaración de la clase.", "SIN005");
-        //    return new FunctionDeclaration();
-        //}
 
         private VarDeclaration ParseVarDeclaration(bool constant)
         {
             bool isConstant = constant;
             int currentLineTemp = _currentLine;
             int currentTokenIndexTemp = _currentTokenIndex;
-            string identifier = null;
-            string keyword = null;
-            if (Consume(TokenType.Keyword, "Se esperaba un un tipo de dato", "SIN007"))
+            Token tokenIdentifier = null;
+            Token tokenKeyword = null;
+            if (Consume(TokenType.Keyword, "Se esperaba un tipo de dato.", "SIN007"))
             {
-                keyword = _currentLine > currentLineTemp
-                            ? Previous(currentLineTemp, currentTokenIndexTemp).Value
-                            : Previous().Value;
+                tokenKeyword = _currentLine > currentLineTemp
+                            ? Previous(currentLineTemp, currentTokenIndexTemp)
+                            : Previous();
             }
             if (Consume(TokenType.Identifier, "Se esperaba un identificador para la variable.", "SIN006"))
             {
-                identifier = _currentLine > currentLineTemp
-                            ? Previous(currentLineTemp, currentTokenIndexTemp).Value
-                            : Previous().Value;
+                tokenIdentifier = _currentLine > currentLineTemp
+                            ? Previous(currentLineTemp, currentTokenIndexTemp)
+                            : Previous();
             }
-            string value = null;
+            AssignmentExpr value = null;
             if (Match(TokenType.Equals))
             {
-                value = ParseExpression();
+                value = ParseAssignmentExpression(new Identifier(tokenIdentifier.Value, tokenIdentifier.StartLine));
             }
 
             Consume(TokenType.Semicolon, "Se esperaba ';' al final de la declaración de variable.", "SIN007");
-            return new VarDeclaration(currentLineTemp, isConstant, identifier, value);
+            if(tokenIdentifier != null)
+                return new VarDeclaration(tokenKeyword.Value, tokenKeyword.StartLine, isConstant, new Identifier(tokenIdentifier.Value, tokenIdentifier.StartLine), value);
+            return null;
         }
 
-        private string ParseExpression()
+        private AssignmentExpr ParseAssignmentExpression(Identifier id)
         {
-            string keyword = null;
+            Expr expresion = ParseAddExpr();
+            if(expresion != null )
+                return new AssignmentExpr(id, expresion, _currentLine);
+            return null;
+            
+
+        }
+        private Expr PrimaryExpr()
+        {
             int currentLineTemp = _currentLine;
             int currentTokenIndexTemp = _currentTokenIndex;
-            string expr = Previous().Value;
-           
-            if  (Consume(new TokenType[] {TokenType.NumericLiteral,TokenType.StringLiteral}, "Se esperaba una expresión ", "SIN008"))
+            Token token = null;
+            if (Consume([TokenType.IntegerLiteral, TokenType.StringLiteral, TokenType.DoubleLiteral, TokenType.OpenParen], "Se esperaba una expresión ", "SIN008"))
             {
-                expr = _currentLine > currentLineTemp
-                            ? Previous(currentLineTemp, currentTokenIndexTemp).Value
-                            : Previous().Value;
+                token = _currentLine > currentLineTemp
+                            ? Previous(currentLineTemp, currentTokenIndexTemp)
+                            : Previous();
             }
-            return expr;
+            if (token != null)
+            {
+                switch (token.Type)
+                {
+                    case TokenType.Identifier:
+                        return new Identifier(token.Value, currentLineTemp);
+                    case TokenType.IntegerLiteral:
+                        return new IntegerLiteral(Convert.ToInt32(token.Value),currentLineTemp);
+                    case TokenType.DoubleLiteral:
+                        return new DoubleLiteral(Convert.ToDouble(token.Value), currentLineTemp);
+                    //case TokenType.StringLiteral:
+                    //    expression = ParseStringLiteral();
+                    //    break;
+                    //case TokenType.OpenParen:
+                    //    expression = ParseBinaryExpr();
+                    //    Consume(TokenType.CloseParen, "Se esperaba el cierre del parentesis", "SIN007");
+                }
+            }
+            return null;
+        }
+        private Expr ParseAddExpr()
+        {
+            int currentLineTemp = _currentLine;
+            int currentTokenIndexTemp = _currentTokenIndex;
+            Expr left = ParseMultExpr();  // Comienza con una expresión de multiplicación
 
+            while (true)
+            {
+                Token token = AdvancePeek();
+                if (token.Type == TokenType.Operator && (token.Value == "+" || token.Value == "-"))
+                {
+                    Advance();  // Consume el operador
+                    Expr right = ParseMultExpr();  // Obtiene la siguiente expresión de multiplicación
+                    left = new BinaryExpr(left, right, token.Value, currentLineTemp);  // Crea una nueva expresión binaria
+                }
+                else
+                {
+                    break;  // Sale del bucle si no hay más operadores de suma o resta
+                }
+            }
+            return left;
+        }
+
+        private Expr ParseMultExpr()
+        {
+            int currentLineTemp = _currentLine;
+            int currentTokenIndexTemp = _currentTokenIndex;
+            Expr left = PrimaryExpr();  // Comienza con una expresión primaria
+
+            while (true)
+            {
+                Token token = AdvancePeek();
+                if (token.Type == TokenType.Operator && (token.Value == "*" || token.Value == "/"))
+                {
+                    Advance();  // Consume el operador
+                    Expr right = PrimaryExpr();  // Obtiene la siguiente expresión primaria
+                    left = new BinaryExpr(left, right, token.Value, currentLineTemp);  // Crea una nueva expresión binaria
+                }
+                else
+                {
+                    break;  // Sale del bucle si no hay más operadores de multiplicación o división
+                }
+            }
+            return left;
+        }
+        private StringLiteral ParseStringLiteral()
+        {
+            Token stringLiteral = Previous();
+            return new StringLiteral(stringLiteral.Value,stringLiteral.StartLine);
+        }
+        private IntegerLiteral ParseIntegerLiteral()
+        {
+            Token integerLiteral = Previous();
+            return new IntegerLiteral(Convert.ToInt32(integerLiteral.Value), integerLiteral.StartLine);
+        }
+        private DoubleLiteral ParseDoubleLiteral()
+        {
+            Token doubleLiteral = Previous();
+            return new DoubleLiteral(Convert.ToDouble( doubleLiteral.Value), doubleLiteral.StartLine);
         }
         private Token Previous(int previousLine, int previousIndexToken)
         {
@@ -239,23 +269,12 @@ namespace Compilador_AAA.Traductor
                 _currentTokens = _tokensByLine[_currentLine];
             }
         }
-        private bool MatchNotAdv(params TokenType[] tokenTypes)
-        {
-            foreach (var type in tokenTypes)
-            {
-                if (Check(type))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
 
         private bool Match(params TokenType[] tokenTypes)
         {
             foreach (var type in tokenTypes)
             {
-                if (CheckNoHop(type))
+                if (Check(type))
                 {
                     Advance();
                     return true;
@@ -263,14 +282,9 @@ namespace Compilador_AAA.Traductor
             }
             return false;
         }
-        private bool CheckNoHop(TokenType type)
-        {
-            if (IsAtEndOfLineNoHop()) return false;
-            return Peek().Type == type;
-        }
         private bool Check(TokenType type)
         {
-            if (IsAtEndOfLine()) return false;
+            IsAtEndOfLine();
             return Peek().Type == type;
         }
         private bool Check(TokenType token, string[] keywords)
@@ -288,7 +302,11 @@ namespace Compilador_AAA.Traductor
 
             return false;
         }
-
+        private Token AdvancePeek()
+        {
+            IsAtEndOfLine();
+            return Peek();
+        }
         private Token Advance()
         {
             if (!IsAtEndOfLine()) _currentTokenIndex++;
@@ -307,15 +325,6 @@ namespace Compilador_AAA.Traductor
         private bool IsAtEndOfFile()
         {
             return Peek().Type == TokenType.EOF;
-        }
-        private bool IsAtEndOfLineNoHop()
-        {
-            if (_currentTokenIndex >= _currentTokens.Count)
-            {
-                return true;
-            }
-
-            return false;
         }
         private bool IsAtEndOfLine()
         {
@@ -338,12 +347,16 @@ namespace Compilador_AAA.Traductor
             else if (!IsAtEndOfLine())
             {
                 errorMsg = "Error de sintaxis: " + errorMessage;
+                if(errorCode !="")
                 TranslatorView.HandleError(errorMsg, expectedType == TokenType.OpenBrace ? Peek().StartLine - 1 : Peek().StartLine, errorCode);
+                Advance();
                 return false;
             }
 
             errorMsg = "Error de sintaxis: " + errorMessage;
-            TranslatorView.HandleError(errorMsg, Previous().StartLine, errorCode);
+            if (errorCode != "")
+                TranslatorView.HandleError(errorMsg, Previous().StartLine, errorCode);
+            Advance();
             return false;
 
         }
@@ -360,12 +373,16 @@ namespace Compilador_AAA.Traductor
             else if (!IsAtEndOfLine())
             {
                 errorMsg = "Error de sintaxis: " + errorMessage;
-                TranslatorView.HandleError(errorMsg, Peek().StartLine, errorCode);
+                if (errorCode != "")
+                    TranslatorView.HandleError(errorMsg, Peek().StartLine, errorCode);
+                Advance();
                 return false;
             }
 
             errorMsg = "Error de sintaxis: " + errorMessage;
-            TranslatorView.HandleError(errorMsg, Previous().StartLine, errorCode);
+            if (errorCode != "")
+                TranslatorView.HandleError(errorMsg, Previous().StartLine, errorCode);
+            Advance();
             return false;
         }
         private bool Consume(TokenType[] expectedType, string errorMessage, string errorCode)
@@ -383,7 +400,9 @@ namespace Compilador_AAA.Traductor
             int errorLine = IsAtEndOfLine() ? Previous().StartLine : Peek().StartLine;
 
             // Manejar el error
-            TranslatorView.HandleError(errorMsg, errorLine, errorCode);
+            if (errorCode != "")
+                TranslatorView.HandleError(errorMsg, errorLine, errorCode);
+            Advance();
             return false;
         }
     }
