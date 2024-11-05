@@ -113,12 +113,12 @@ namespace Compilador_AAA.Traductor
                 }
                 else
                 {
-                    Advance();
+                    if (!IsAtEndOfLine()) _currentTokenIndex++;
                 }
                 
             }
 
-            Consume(TokenType.CloseBrace, "Se esperaba '}' al final de la declaración de la clase.", "SIN005");
+            Consume(TokenType.CloseBrace, "Se esperaba '}' al final de la declaración de la clase", "SIN005");
             return new ClassDeclaration(className, new List<string>(), children, accessModifier,currentLineTemp);
         }
 
@@ -183,12 +183,12 @@ namespace Compilador_AAA.Traductor
                         return new IntegerLiteral(Convert.ToInt32(token.Value),currentLineTemp);
                     case TokenType.DoubleLiteral:
                         return new DoubleLiteral(Convert.ToDouble(token.Value), currentLineTemp);
-                    //case TokenType.StringLiteral:
-                    //    expression = ParseStringLiteral();
-                    //    break;
-                    //case TokenType.OpenParen:
-                    //    expression = ParseBinaryExpr();
-                    //    Consume(TokenType.CloseParen, "Se esperaba el cierre del parentesis", "SIN007");
+                    case TokenType.StringLiteral:
+                        return new StringLiteral(token.Value, currentLineTemp);
+                    case TokenType.OpenParen:
+                        var value = ParseAddExpr();
+                        Consume(TokenType.CloseParen, "se esperaba el cierre del parentesis", "sin007");
+                        return value;
                 }
             }
             return null;
@@ -348,7 +348,7 @@ namespace Compilador_AAA.Traductor
             {
                 errorMsg = "Error de sintaxis: " + errorMessage;
                 if(errorCode !="")
-                TranslatorView.HandleError(errorMsg, expectedType == TokenType.OpenBrace ? Peek().StartLine - 1 : Peek().StartLine, errorCode);
+                TranslatorView.HandleError(errorMsg + $" pero se encontró: {Peek().Value}", expectedType == TokenType.OpenBrace ? Peek().StartLine - 1 : Peek().StartLine, errorCode);
                 Advance();
                 return false;
             }
@@ -374,7 +374,7 @@ namespace Compilador_AAA.Traductor
             {
                 errorMsg = "Error de sintaxis: " + errorMessage;
                 if (errorCode != "")
-                    TranslatorView.HandleError(errorMsg, Peek().StartLine, errorCode);
+                    TranslatorView.HandleError(errorMsg + $" pero se encontró: {Peek().Value}", Peek().StartLine, errorCode);
                 Advance();
                 return false;
             }
@@ -401,7 +401,7 @@ namespace Compilador_AAA.Traductor
 
             // Manejar el error
             if (errorCode != "")
-                TranslatorView.HandleError(errorMsg, errorLine, errorCode);
+                TranslatorView.HandleError(errorMsg + $" pero se encontró: {Peek().Value}", errorLine, errorCode);
             Advance();
             return false;
         }

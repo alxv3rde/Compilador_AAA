@@ -48,18 +48,22 @@ namespace Compilador_AAA.Traductor
                 // Error: variable ya definida
                 TranslatorView.HandleError("La variable '" + varDeclaration.Identifier + "' ya está definida.", varDeclaration.StartLine, "SEM002");
             }
-            //else if (varDeclaration.VarType == "int" && varDeclaration.Value.Value.Kind != NodeType.IntegerLiteral)
-            //{
-            //    TranslatorView.HandleError(("Valor incorrecto para la variable entera"), varDeclaration.StartLine, "SEM003");
-            //}
-            //else if (varDeclaration.VarType == "string" && varDeclaration.Value.Value.Kind != NodeType.StringLiteral)
-            //{
-            //    TranslatorView.HandleError(("Valor incorrecto para la variable cadena"), varDeclaration.StartLine, "SEM004");
-            //}
-            //else if (varDeclaration.VarType == "double" && varDeclaration.Value.Value.Kind != NodeType.DoubleLiteral)
-            //{
-            //    TranslatorView.HandleError(("Valor incorrecto para la variable double"), varDeclaration.StartLine, "SEM005");
-            //}
+            else if (varDeclaration.Value!=null && varDeclaration.Value.Value.Kind != NodeType.BinaryExpr)
+            {
+                if (varDeclaration.VarType == "int" && varDeclaration.Value.Value.Kind != NodeType.IntegerLiteral)
+                {
+                    TranslatorView.HandleError(("Valor incorrecto para la variable entera"), varDeclaration.StartLine, "SEM003");
+                }
+                else if (varDeclaration.VarType == "string" && varDeclaration.Value.Value.Kind != NodeType.StringLiteral)
+                {
+                    TranslatorView.HandleError(("Valor incorrecto para la variable cadena"), varDeclaration.StartLine, "SEM004");
+                }
+                else if (varDeclaration.VarType == "double" && varDeclaration.Value.Value.Kind == NodeType.StringLiteral)
+                {
+                    TranslatorView.HandleError(("Valor incorrecto para la variable double"), varDeclaration.StartLine, "SEM005");
+                }
+            }
+
         }
 
         public void Visit(FunctionDeclaration functionDeclaration)
