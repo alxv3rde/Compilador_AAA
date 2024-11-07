@@ -38,7 +38,7 @@ namespace Compilador_AAA.Views
             Loaded += TranslatorView_Loaded;
             lvErrores.ItemsSource = ErrorList;
         }
-
+        public static List<string> _print = new List<string>();
         private void TranslatorView_Loaded(object sender, RoutedEventArgs e)
         {
             OriginalEditor.Focus();
@@ -67,54 +67,19 @@ namespace Compilador_AAA.Views
         private Point _startPoint;
         private void btnTraducir_Click(object sender, RoutedEventArgs e)
         {
-
-            if (OriginalEditor.Text != string.Empty)
+            if (ErrorList.Count == 0)
             {
-                ErrorList.Clear();
-                TranslatedEditor.Text = string.Empty;
+                // Concatenar todos los elementos de la lista _print en un solo string
+                string concatenatedString = string.Join("\n", _print); // Usar "\n" como delimitador
 
-                try
-                {
-                    // Tokenizar el texto original
-                    Lexer lexer = new Lexer(OriginalEditor.Document);
-                    var tokensTuple = lexer.Tokenize();
-                    int num;
-                    // Parsear los tokens
-                    Parser parser = new Parser(tokensTuple);
-                    var program = parser.Parse(); // Asegúrate de que el método Parse() devuelva un objeto Program
+                // Mostrar el resultado en un MessageBox
+                MessageBox.Show(concatenatedString, "Resultados");
 
-                    // Realizar análisis semántico
-                    var semanticAnalyzer = new SemanticAnalyzer();
-                    program.Accept(semanticAnalyzer);
-
-                    // Generar la traducción
-                    for (int i = 1; i < tokensTuple.Keys.Count + 1; i++)
-                    {
-                        TranslatedEditor.Text += "block \n";
-
-                        for (int j = 0; j < tokensTuple.Where(kv => kv.Key == i)
-                              .Select(kv => kv.Value.Count)
-                              .FirstOrDefault(); j++)
-                        {
-                            if (tokensTuple.TryGetValue(i, out List<Token> valor))
-                            {
-                                string temp = valor[j].ToString();
-                                if (i != tokensTuple.Count - 1)
-                                    TranslatedEditor.Text += "\t'" + temp + "'" + ", \n";
-                                else
-                                    TranslatedEditor.Text += "\t'" + temp + "'\n";
-                            }
-                        }
-                        TranslatedEditor.Text += "End \n\n";
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.ToString());
-                }
             }
+            
             BrushConverter bc = new BrushConverter();
             translatedheadercolor.Background = (Brush)bc.ConvertFrom("#878b4f");
+
         }
 
         private void lvErrores_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -184,6 +149,7 @@ namespace Compilador_AAA.Views
             {
                 if (OriginalEditor.Text != string.Empty)
                 {
+                    _print.Clear();
                     ErrorList.Clear();
                     TranslatedEditor.Text = string.Empty;
 

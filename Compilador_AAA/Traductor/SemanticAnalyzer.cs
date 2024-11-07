@@ -3,6 +3,7 @@ using Compilador_AAA.Views;
 using Microsoft.Windows.Themes;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -13,7 +14,7 @@ namespace Compilador_AAA.Traductor
 {
     public class SemanticAnalyzer : IVisitor
     {
-        private readonly Dictionary<string,Variable> _variables = new Dictionary<string,Variable>();
+        private readonly Dictionary<string, Variable> _variables = new Dictionary<string, Variable>();
         private readonly HashSet<string> _functions = new HashSet<string>();
         private readonly HashSet<string> _classes = new HashSet<string>();
 
@@ -22,6 +23,20 @@ namespace Compilador_AAA.Traductor
             foreach (var stmt in program.children)
             {
                 stmt.Accept(this);
+            }
+        }
+        public void Visit(Println println)
+        {
+            if (println.Content != null && _variables.ContainsKey(println.Content))
+            {
+                if (_variables[println.Content].Value != null)
+                    TranslatorView._print.Add(EvaluateExpression(_variables[println.Content].Value).ToString());
+                else
+                    TranslatorView.HandleError($"La variable '{println.Content}' no está inicializada.", println.StartLine, "SIN014");
+            }
+            else
+            {
+                TranslatorView.HandleError($"La variable '{println.Content}' no existe.", println.StartLine, "SIN014");
             }
         }
 
@@ -43,8 +58,8 @@ namespace Compilador_AAA.Traductor
         public void Visit(StringLiteral stringLiteral) { /* Implementar según sea necesario */ }
         public double Visit(DoubleLiteral doubleLiteral) { return doubleLiteral.Value; }
 
-        
-        
+
+
 
         public void Visit(FunctionDeclaration functionDeclaration)
         {
@@ -88,7 +103,7 @@ namespace Compilador_AAA.Traductor
             // Aquí puedes agregar más lógica para verificar el valor asignado
             assignmentExpr.Value.Accept(this);
         }
-        
+
         public void Visit(Identifier identifier)
         {
             if (!_variables.ContainsKey(identifier.ID))
@@ -97,8 +112,8 @@ namespace Compilador_AAA.Traductor
             }
             else
             {
-                
-                if(identifier.Assignment != null && identifier.Assignment.Value!=null)
+
+                if (identifier.Assignment != null && identifier.Assignment.Value != null)
                 {
                     Variable tempVar = _variables[identifier.ID];
                     if (identifier.Assignment.Value.Kind == NodeType.BinaryExpr)
@@ -108,7 +123,7 @@ namespace Compilador_AAA.Traductor
                         {
                             if (exprGotDouble || varGotDouble)
                             {
-                                TranslatorView.HandleError("No se puede convertir el tipo 'double' en 'int'.",identifier.StartLine, "SIN014");
+                                TranslatorView.HandleError("No se puede convertir el tipo 'double' en 'int'.", identifier.StartLine, "SIN014");
                                 exprGotDouble = false;
                                 varGotDouble = false;
 
@@ -121,11 +136,12 @@ namespace Compilador_AAA.Traductor
                             if (result is double res)
                             {
                                 _variables[identifier.ID].Value = new DoubleLiteral(Convert.ToDouble(res), identifier.StartLine);
-                            }else if (result is int ress)
+                            }
+                            else if (result is int ress)
                             {
                                 _variables[identifier.ID].Value = new DoubleLiteral(Convert.ToDouble(ress), identifier.StartLine);
                             }
-                            
+
                         }
                     }
                     else
@@ -140,7 +156,7 @@ namespace Compilador_AAA.Traductor
                     }
 
                 }
-                
+
             }
         }
         public void Visit(VarDeclaration varDeclaration)
@@ -148,23 +164,24 @@ namespace Compilador_AAA.Traductor
             // Verificar si la variable ya está declarada
             if (!_variables.ContainsKey(varDeclaration.Identifier.ID))
             {
-                _variables.Add(varDeclaration.Identifier.ID, new Variable(varDeclaration.VarType,null));
+                _variables.Add(varDeclaration.Identifier.ID, new Variable(varDeclaration.VarType, null));
                 if (varDeclaration.Assignment != null && varDeclaration.Assignment.Value != null)
                 {
                     if (varDeclaration.Assignment.Value.Kind == NodeType.BinaryExpr)
                     {
                         object result = Visit((BinaryExpr)varDeclaration.Assignment.Value);
-                        if (varDeclaration.VarType == "int" )
+                        if (varDeclaration.VarType == "int")
                         {
                             if (exprGotDouble || varGotDouble)
                             {
                                 TranslatorView.HandleError("No se puede convertir el tipo 'double' en 'int'.", varDeclaration.StartLine, "SIN014");
                                 exprGotDouble = false;
                                 varGotDouble = false;
-                                
-                            }else if (result is var res)
-                            _variables[varDeclaration.Identifier.ID].Value = new IntegerLiteral(Convert.ToInt32(res),varDeclaration.StartLine);
-                            
+
+                            }
+                            else if (result is var res)
+                                _variables[varDeclaration.Identifier.ID].Value = new IntegerLiteral(Convert.ToInt32(res), varDeclaration.StartLine);
+
                         }
                         else if (varDeclaration.VarType == "double")
                         {
@@ -186,8 +203,9 @@ namespace Compilador_AAA.Traductor
                         {
                             TranslatorView.HandleError($"No se puede convertir el tipo 'double' en 'int'.", varDeclaration.StartLine, "SIN014");
                             varGotDouble = false;
-                        }else
-                        _variables[varDeclaration.Identifier.ID].Value = varDeclaration.Assignment.Value;
+                        }
+                        else
+                            _variables[varDeclaration.Identifier.ID].Value = varDeclaration.Assignment.Value;
                     }
                 }
             }
@@ -196,13 +214,13 @@ namespace Compilador_AAA.Traductor
                 // Error: variable ya definida
                 TranslatorView.HandleError("La variable '" + varDeclaration.Identifier + "' ya está definida.", varDeclaration.StartLine, "SEM002");
             }
-            
+
 
         }
         private object HandleStringOperation(object leftValue, object rightValue, string operatorSymbol, int line)
         {
             // Manejo específico para operaciones con strings
-            if(leftValue is not string || rightValue is not string)
+            if (leftValue is not string || rightValue is not string)
             {
                 TranslatorView.HandleError("Expresion invalida ", line, "SIN019");
                 return null;
@@ -210,7 +228,7 @@ namespace Compilador_AAA.Traductor
             if (operatorSymbol == "+")
             {
                 string pattern = "^\"(.+)\"$";
-                return "\""+Regex.Replace(leftValue.ToString(),pattern,"$1") + Regex.Replace(rightValue.ToString(), pattern, "$1") + "\""; // Concatenar
+                return "\"" + Regex.Replace(leftValue.ToString(), pattern, "$1") + Regex.Replace(rightValue.ToString(), pattern, "$1") + "\""; // Concatenar
             }
             TranslatorView.HandleError("Operador no soportado para cadenas: ", line, "SIN017");
             throw new InvalidOperationException("Operador no soportado para cadenas: " + operatorSymbol);
@@ -267,7 +285,7 @@ namespace Compilador_AAA.Traductor
             return value is int || (value is double d && d % 1 == 0);
         }
 
-        
+
         bool varGotDouble = false;
         private object EvaluateExpression(Expr expression)
         {
@@ -295,12 +313,13 @@ namespace Compilador_AAA.Traductor
                         {
                             TranslatorView.HandleError($"La variable '{identifier.ID}' no existe.", expression.StartLine, "SIN014");
                             return null;
-                        }else if (_variables[identifier.ID].Value == null)
+                        }
+                        else if (_variables[identifier.ID].Value == null)
                         {
-                            TranslatorView.HandleError($"La variable '{identifier.ID}' no tiene valor asignado", expression.StartLine, "SIN014");
+                            TranslatorView.HandleError($"La variable '{identifier.ID}' no está inicializada.", expression.StartLine, "SIN014");
                             return null;
                         }
-                        
+
                         // Supongamos que tienes un diccionario que almacena los valores de las variables
                         return EvaluateExpression(GetVariableValue(identifier.ID));
                     case NodeType.BinaryExpr:
@@ -337,13 +356,52 @@ namespace Compilador_AAA.Traductor
                 arg.Accept(this);
             }
         }
-        
+        //public bool EvaluateCondition(ConditionExpr condition)
+        //{
+        //    var leftValue = EvaluateExpression(condition.Left);
+        //    var rightValue = EvaluateExpression(condition.Right);
 
+        //    switch (condition.Operator)
+        //    {
+        //        case "==":
+        //            return leftValue.Equals(rightValue);
+        //        case "!=":
+        //            return !leftValue.Equals(rightValue);
+        //        case ">":
+        //            return Convert.ToDouble(leftValue) > Convert.ToDouble(rightValue);
+        //        case "<":
+        //            return Convert.ToDouble(leftValue) < Convert.ToDouble(rightValue);
+        //        default:
+        //            throw new InvalidOperationException("Operador no soportado: " + condition.Operator);
+        //    }
+        //}
+
+        public void Visit(IfStatement ifStatement)
+        {
+            //// Lógica para manejar el if statement
+            //ifStatement.Condition.Accept(this);
+            //foreach (var stmt in ifStatement.ThenBranch)
+            //{
+            //    stmt.Accept(this);
+            //}
+            //if (ifStatement.ElseBranch != null)
+            //{
+            //    foreach (var stmt in ifStatement.ElseBranch)
+            //    {
+            //        stmt.Accept(this);
+            //    }
+            //}
+        }
         // Implementar otros métodos de visita según sea necesario
         public void Visit(MemberExpr memberExpr) { /* Implementar según sea necesario */ }
 
 
         public void Visit(Property property) { /* Implementar según sea necesario */ }
         public void Visit(ObjectLiteral objectLiteral) { /* Implementar según sea necesario */ }
+
+        public void Visit(ConditionExpr conditionExpr)
+        {
+
+        }
     }
 }

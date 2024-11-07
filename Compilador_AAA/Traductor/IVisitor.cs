@@ -15,15 +15,17 @@ namespace Compilador_AAA.Traductor
         void Visit(VarDeclaration varDeclaration);
         void Visit(ClassDeclaration classDeclaration);
         void Visit(FunctionDeclaration functionDeclaration);
-        
+
         //Statements
-        
+        void Visit(IfStatement ifStatement);
+        void Visit(Println println);
 
         //Expresions
         void Visit(AssignmentExpr assignmentExpr);
         object Visit(BinaryExpr binaryExpr);
         void Visit(CallExpr callExpr);
         void Visit(MemberExpr memberExpr);
+        void Visit(ConditionExpr conditionExpr);
 
         //Literals
         void Visit(Identifier identifier);

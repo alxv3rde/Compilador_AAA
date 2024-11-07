@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,12 +23,14 @@ namespace Compilador_AAA.Traductor
         ForStatement,
         WhileStatement,
         ReturnStatement,
+        Println,
 
         // EXPRESSIONS
         AssignmentExpr,
         MemberExpr,
         CallExpr,
         BinaryExpr, 
+        ConditionExpr,
 
         // LITERALS
         Property,
@@ -76,6 +79,25 @@ namespace Compilador_AAA.Traductor
             visitor.Visit(this);
         }
     }
+    public class ConditionExpr : Expr
+    {
+        public Expr Left { get; set; }
+        public string Operator { get; set; }
+        public Expr Right { get; set; }
+
+        public ConditionExpr(Expr left, string operatorSymbol, Expr right, int startLine)
+            : base(NodeType.ConditionExpr, startLine)
+        {
+            Left = left;
+            Operator = operatorSymbol;
+            Right = right;
+        }
+
+        public override void Accept(IVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
+    }
     public class ClassDeclaration : Stmt
     {
         public TokenType AccessMod { get; set; }
@@ -118,7 +140,25 @@ namespace Compilador_AAA.Traductor
             visitor.Visit(this);
         }
     }
+    public class IfStatement : Stmt
+    {
+        public Expr Condition { get; set; }
+        public List<Stmt> ThenBranch { get; set; }
+        public List<Stmt> ElseBranch { get; set; } // Opcional, si deseas manejar 'else'
 
+        public IfStatement(Expr condition, List<Stmt> thenBranch, List<Stmt> elseBranch, int startLine)
+            : base(NodeType.IfStatement, startLine)
+        {
+            Condition = condition;
+            ThenBranch = thenBranch;
+            ElseBranch = elseBranch;
+        }
+
+        public override void Accept(IVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
+    }
     public class FunctionDeclaration : Stmt
     {
         public List<Stmt> Parameters { get; set; }
@@ -138,6 +178,7 @@ namespace Compilador_AAA.Traductor
             visitor.Visit(this);
         }
     }
+
     
     // EXPRESSION BASE CLASS
     public abstract class Expr : Stmt
@@ -232,6 +273,19 @@ namespace Compilador_AAA.Traductor
             ID = iD;
             Assignment = assignment;
         }
+        public override void Accept(IVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
+    }
+    public class Println : Stmt
+    {
+        public string? Content { get; set; }
+        public Println(int startLine, string? content) : base(NodeType.Println, startLine)
+        {
+            Content = content;
+        }
+
         public override void Accept(IVisitor visitor)
         {
             visitor.Visit(this);

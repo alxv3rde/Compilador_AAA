@@ -50,15 +50,23 @@ namespace Compilador_AAA.Traductor
         private Stmt ParseStatement()
         {
             IsAtEndOfLine();
-            if (Check(TokenType.Keyword, ["class"]))
+            if (Check(TokenType.Keyword, new[] { "class" }))
             {
-                Advance(); //avanza una posicion imitando el metodo Match()
+                Advance();
                 return ParseClassDeclaration();
             }
-            else if (Check(TokenType.Keyword, ["int", "bool", "double", "string" ]))
+            else if (Check(TokenType.Keyword, new[] { "Println" }))
+            {
+                Advance();
+                return ParsePrintln(); // Agregar aquí
+            }
+            else if (Check(TokenType.Keyword, new[] { "if" }))
+            {
+                return ParseIfStatement(); // Agregar aquí
+            }
+            else if (Check(TokenType.Keyword, new[] { "int", "bool", "double", "string" }))
             {
                 return ParseVarDeclaration(true);
-
             }
             else if (Match(TokenType.Identifier))
             {
@@ -68,7 +76,22 @@ namespace Compilador_AAA.Traductor
             {
                 return null;
             }
-
+        }
+        private Println ParsePrintln()
+        {
+            int currentLineTemp = _currentLine;
+            int currentTokenIndexTemp = _currentTokenIndex;
+            string expr = null;
+            Consume(TokenType.OpenParen, "Se esperaba '(' después de 'Println'", "SIN011");
+            if (Consume(TokenType.Identifier, "Se esperaba un identificador", "SIN001"))
+            {
+                expr = _currentLine > currentLineTemp
+                            ? Previous(currentLineTemp, currentTokenIndexTemp).Value
+                            : Previous().Value;
+            }
+            Consume(TokenType.CloseParen, "Se esperaba ')' ", "SIN011");
+            Consume(TokenType.Semicolon, "Se esperaba ';' al final.", "SIN007");
+            return new Println(currentLineTemp,expr);
         }
 
         private Identifier ParseIdentifier()
@@ -129,6 +152,50 @@ namespace Compilador_AAA.Traductor
 
             Consume(TokenType.CloseBrace, "Se esperaba '}' al final de la declaración de la clase", "SIN005");
             return new ClassDeclaration(className, new List<string>(), children, accessModifier,currentLineTemp);
+        }
+        private Expr ParseCondition()
+        {
+            Expr left = ParseAddExpr(); // Analiza la expresión a la izquierda
+
+            Token token = AdvancePeek(); // Obtiene el siguiente token
+            if (token.Type == TokenType.BinaryOperator && (token.Value == "==" || token.Value == "!=" || token.Value == ">" || token.Value == "<"))
+            {
+                Advance(); // Consume el operador
+                Expr right = ParseAddExpr(); // Analiza la expresión a la derecha
+                return new ConditionExpr(left, token.Value, right, _currentLine); // Crea una nueva condición
+            }
+
+            return left; // Si no hay operador, retorna la expresión izquierda
+        }
+        
+
+        private IfStatement ParseIfStatement()
+        {
+            Consume(TokenType.Keyword, "Se esperaba 'if'", "SIN010");
+            Consume(TokenType.OpenParen, "Se esperaba '(' después de 'if'", "SIN011");
+
+            Expr condition = (Expr)ParseCondition(); // Analiza la condición
+
+            Consume(TokenType.CloseParen, "Se esperaba ')' después de la condición", "SIN012");
+            Consume(TokenType.OpenBrace, "Se esperaba '{' después de la condición", "SIN013");
+
+            List<Stmt> thenBranch = new List<Stmt>();
+            while (!Check(TokenType.CloseBrace) && !IsAtEndOfFile())
+            {
+                var statement = ParseStatement();
+                if (statement != null)
+                {
+                    thenBranch.Add(statement);
+                }
+                else
+                {
+                    AdvanceToNextLine();
+                }
+            }
+
+            Consume(TokenType.CloseBrace, "Se esperaba '}' al final del bloque 'if'", "SIN014");
+
+            return new IfStatement(condition, thenBranch, null, _currentLine); // Retorna el if statement
         }
 
         private VarDeclaration ParseVarDeclaration(bool constant)
@@ -203,6 +270,28 @@ namespace Compilador_AAA.Traductor
             return null;
         }
         private Expr ParseAddExpr()
+        {
+            int currentLineTemp = _currentLine;
+            int currentTokenIndexTemp = _currentTokenIndex;
+            Expr left = ParseMultExpr();  // Comienza con una expresión de multiplicación
+
+            while (true)
+            {
+                Token token = AdvancePeek();
+                if (token.Type == TokenType.Operator && (token.Value == "+" || token.Value == "-"))
+                {
+                    Advance();  // Consume el operador
+                    Expr right = ParseMultExpr();  // Obtiene la siguiente expresión de multiplicación
+                    left = new BinaryExpr(left, right, token.Value, currentLineTemp);  // Crea una nueva expresión binaria
+                }
+                else
+                {
+                    break;  // Sale del bucle si no hay más operadores de suma o resta
+                }
+            }
+            return left;
+        }
+        private Expr ParseBinaryOperator()
         {
             int currentLineTemp = _currentLine;
             int currentTokenIndexTemp = _currentTokenIndex;
