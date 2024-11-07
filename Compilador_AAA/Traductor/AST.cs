@@ -103,14 +103,14 @@ namespace Compilador_AAA.Traductor
         public string VarType { get; set; }
         public bool Constant { get; set; }
         public Identifier Identifier { get; set; }
-        public AssignmentExpr Value { get; set; }
+        public AssignmentExpr Assignment { get; set; }
 
-        public VarDeclaration(string varType, int startLine, bool constant, Identifier identifier, AssignmentExpr value = null)
+        public VarDeclaration(string varType, int startLine, bool constant, Identifier identifier, AssignmentExpr assignment= null)
             : base(NodeType.VarDeclaration, startLine)
         {
             Constant = constant;
             Identifier = identifier;
-            Value = value;
+            Assignment = assignment;
             VarType = varType;
         }
         public override void Accept(IVisitor visitor)
@@ -144,6 +144,7 @@ namespace Compilador_AAA.Traductor
     {
         protected Expr(NodeType kind, int startLine) : base(kind, startLine) { }
     }
+
     public class AssignmentExpr : Expr
     {
         public Identifier? Identifier { get; set; }
@@ -221,10 +222,15 @@ namespace Compilador_AAA.Traductor
     public class Identifier : Expr
     {
         public string ID { get; set; }
-
+        public AssignmentExpr Assignment { get; set; }
         public Identifier(string iD, int startLine) : base(NodeType.Identifier, startLine)
         {
             ID = iD;
+        }
+        public Identifier(string iD, int startLine, AssignmentExpr assignment) : base(NodeType.Identifier, startLine)
+        {
+            ID = iD;
+            Assignment = assignment;
         }
         public override void Accept(IVisitor visitor)
         {
@@ -234,6 +240,7 @@ namespace Compilador_AAA.Traductor
 
     public class IntegerLiteral : Expr
     {
+        public string type { get; set; }
         public int Value { get; set; }
 
         public IntegerLiteral(int value, int startLine) : base(NodeType.IntegerLiteral, startLine)

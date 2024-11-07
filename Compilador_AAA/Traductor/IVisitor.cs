@@ -21,15 +21,15 @@ namespace Compilador_AAA.Traductor
 
         //Expresions
         void Visit(AssignmentExpr assignmentExpr);
-        void Visit(BinaryExpr binaryExpr);
+        object Visit(BinaryExpr binaryExpr);
         void Visit(CallExpr callExpr);
         void Visit(MemberExpr memberExpr);
 
         //Literals
         void Visit(Identifier identifier);
         void Visit(StringLiteral stringLiteral);
-        void Visit(DoubleLiteral doubleLiteral);
-        void Visit(IntegerLiteral integerLiteral);
+        double Visit(DoubleLiteral doubleLiteral);
+        int Visit(IntegerLiteral integerLiteral);
         void Visit(Property property);
         void Visit(ObjectLiteral objectLiteral);
     }

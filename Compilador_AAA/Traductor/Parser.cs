@@ -75,7 +75,16 @@ namespace Compilador_AAA.Traductor
         {
 
             string identifier = Previous().Value;
-            return new Identifier(identifier,_currentLine);
+            AssignmentExpr value = null;
+            if (Match(TokenType.Equals))
+            {
+                value = ParseAssignmentExpression(new Identifier(identifier, Previous().StartLine));
+            }
+
+            Consume(TokenType.Semicolon, "Se esperaba ';' al final de la declaración de variable.", "SIN007");
+            if (value != null)
+                return new Identifier(identifier,  Previous().StartLine, value);
+            return null;
         }
 
         private Expr ParseNumericLiteral()
@@ -167,7 +176,7 @@ namespace Compilador_AAA.Traductor
             int currentLineTemp = _currentLine;
             int currentTokenIndexTemp = _currentTokenIndex;
             Token token = null;
-            if (Consume([TokenType.IntegerLiteral, TokenType.StringLiteral, TokenType.DoubleLiteral, TokenType.OpenParen], "Se esperaba una expresión ", "SIN008"))
+            if (Consume([TokenType.IntegerLiteral, TokenType.StringLiteral, TokenType.DoubleLiteral, TokenType.OpenParen,TokenType.Identifier], "Se esperaba una expresión ", "SIN008"))
             {
                 token = _currentLine > currentLineTemp
                             ? Previous(currentLineTemp, currentTokenIndexTemp)

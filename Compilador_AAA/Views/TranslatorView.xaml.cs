@@ -21,6 +21,8 @@ using Compilador_AAA.Models;
 using ICSharpCode.AvalonEdit.Highlighting;
 using System.Text.RegularExpressions;
 using System.Collections;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace Compilador_AAA.Views
 {
@@ -29,7 +31,6 @@ namespace Compilador_AAA.Views
     /// </summary>
     public partial class TranslatorView : UserControl
     {
-
         public TranslatorView()
         {
             ;
@@ -77,7 +78,7 @@ namespace Compilador_AAA.Views
                     // Tokenizar el texto original
                     Lexer lexer = new Lexer(OriginalEditor.Document);
                     var tokensTuple = lexer.Tokenize();
-
+                    int num;
                     // Parsear los tokens
                     Parser parser = new Parser(tokensTuple);
                     var program = parser.Parse(); // Asegúrate de que el método Parse() devuelva un objeto Program
@@ -191,7 +192,6 @@ namespace Compilador_AAA.Views
                         // Tokenizar el texto original
                         Lexer lexer = new Lexer(OriginalEditor.Document);
                         var tokensTuple = lexer.Tokenize();
-
                         // Parsear los tokens
                         Parser parser = new Parser(tokensTuple);
                         var program = parser.Parse(); // Asegúrate de que el método Parse() devuelva un objeto Program
