@@ -25,13 +25,14 @@ namespace Compilador_AAA.Traductor
         object Visit(BinaryExpr binaryExpr);
         void Visit(CallExpr callExpr);
         void Visit(MemberExpr memberExpr);
-        void Visit(ConditionExpr conditionExpr);
+        bool? Visit(ConditionExpr conditionExpr);
 
         //Literals
         void Visit(Identifier identifier);
         void Visit(StringLiteral stringLiteral);
         double Visit(DoubleLiteral doubleLiteral);
         int Visit(IntegerLiteral integerLiteral);
+        bool? Visit(BooleanLiteral booleanLiteral);
         void Visit(Property property);
         void Visit(ObjectLiteral objectLiteral);
     }

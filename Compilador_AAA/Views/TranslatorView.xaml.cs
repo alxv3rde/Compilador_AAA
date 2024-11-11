@@ -67,19 +67,16 @@ namespace Compilador_AAA.Views
         private Point _startPoint;
         private void btnTraducir_Click(object sender, RoutedEventArgs e)
         {
-            if (ErrorList.Count == 0)
+            BrushConverter bc = new BrushConverter();
+            translatedheadercolor.Background = (Brush)bc.ConvertFrom("#7160e8");
+            if (ErrorList.Count == 0 && _print.Count!=0)
             {
                 // Concatenar todos los elementos de la lista _print en un solo string
                 string concatenatedString = string.Join("\n", _print); // Usar "\n" como delimitador
 
                 // Mostrar el resultado en un MessageBox
                 MessageBox.Show(concatenatedString, "Resultados");
-
             }
-            
-            BrushConverter bc = new BrushConverter();
-            translatedheadercolor.Background = (Brush)bc.ConvertFrom("#878b4f");
-
         }
 
         private void lvErrores_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -105,7 +102,7 @@ namespace Compilador_AAA.Views
         private void OriginalEditor_GotFocus(object sender, RoutedEventArgs e)
         {
             BrushConverter bc = new BrushConverter();
-            originalheadercolor.Background = (Brush)bc.ConvertFrom("#878b4f");
+            originalheadercolor.Background = (Brush)bc.ConvertFrom("#7160e8");
             translatedheadercolor.Background = (Brush)bc.ConvertFrom("#313131");
             errorlistheadercolor.Background = (Brush)bc.ConvertFrom("#313131");
         }
@@ -119,7 +116,7 @@ namespace Compilador_AAA.Views
         private void TranslatedEditor_GotFocus(object sender, RoutedEventArgs e)
         {
             BrushConverter bc = new BrushConverter();
-            translatedheadercolor.Background = (Brush)bc.ConvertFrom("#878b4f");
+            translatedheadercolor.Background = (Brush)bc.ConvertFrom("#7160e8");
             originalheadercolor.Background = (Brush)bc.ConvertFrom("#313131");
             errorlistheadercolor.Background = (Brush)bc.ConvertFrom("#313131");
         }
@@ -133,7 +130,7 @@ namespace Compilador_AAA.Views
         private void ErrorsWindow_GotFocus(object sender, RoutedEventArgs e)
         {
             BrushConverter bc = new BrushConverter();
-            errorlistheadercolor.Background = (Brush)bc.ConvertFrom("#878b4f");
+            errorlistheadercolor.Background = (Brush)bc.ConvertFrom("#7160e8");
             originalheadercolor.Background = (Brush)bc.ConvertFrom("#313131");
             translatedheadercolor.Background = (Brush)bc.ConvertFrom("#313131");
         }
@@ -142,7 +139,7 @@ namespace Compilador_AAA.Views
         {
             errorlistheadercolor.Background = new SolidColorBrush(Colors.Transparent);
         }
-
+        
         private void OriginalEditor_TextChanged(object sender, EventArgs e)
         {
             if (RTErrorList)
@@ -152,7 +149,6 @@ namespace Compilador_AAA.Views
                     _print.Clear();
                     ErrorList.Clear();
                     TranslatedEditor.Text = string.Empty;
-
                     try
                     {
                         // Tokenizar el texto original
@@ -161,10 +157,9 @@ namespace Compilador_AAA.Views
                         // Parsear los tokens
                         Parser parser = new Parser(tokensTuple);
                         var program = parser.Parse(); // Asegúrate de que el método Parse() devuelva un objeto Program
-
                         // Realizar análisis semántico
                         var semanticAnalyzer = new SemanticAnalyzer();
-                        program.Accept(semanticAnalyzer);
+                         program.Accept(semanticAnalyzer);
 
                         // Generar la traducción
                         for (int i = 1; i < tokensTuple.Keys.Count + 1; i++)
@@ -193,7 +188,7 @@ namespace Compilador_AAA.Views
                     }
                 }
                 BrushConverter bc = new BrushConverter();
-                translatedheadercolor.Background = (Brush)bc.ConvertFrom("#878b4f");
+                translatedheadercolor.Background = (Brush)bc.ConvertFrom("#7160e8");
             }
         }
         private bool RTErrorList = true;

@@ -36,6 +36,7 @@ namespace Compilador_AAA.Traductor
         Property,
         NumericLiteral,
         ObjectLiteral,
+        BooleanLiteral,
         StringLiteral,
         IntegerLiteral,
         DoubleLiteral,
@@ -324,6 +325,19 @@ namespace Compilador_AAA.Traductor
         public string Value { get; set; }
 
         public StringLiteral(string value, int startLine) : base(NodeType.StringLiteral, startLine)
+        {
+            Value = value;
+        }
+        public override void Accept(IVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
+    }
+    public class BooleanLiteral : Expr
+    {
+        public bool Value { get; set; }
+
+        public BooleanLiteral(bool value, int startLine) : base(NodeType.BooleanLiteral, startLine)
         {
             Value = value;
         }

@@ -102,7 +102,7 @@
             </Grid>
             <Grid Grid.Row="1" Name="ContentPanel" Margin="10,0"/>
             <Grid Grid.Row="2"
-                  Background="#878b4f"></Grid>
+                  Background="#7160e8"></Grid>
         </Grid>
     </Border>
    

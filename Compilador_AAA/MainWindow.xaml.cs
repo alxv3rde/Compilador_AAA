@@ -81,7 +81,7 @@ namespace Compilador_AAA
         private void Window_Activated(object sender, EventArgs e)
         {
             BrushConverter bc = new BrushConverter();
-            MainBorder.BorderBrush = (Brush)bc.ConvertFrom("#878b4f");
+            MainBorder.BorderBrush = (Brush)bc.ConvertFrom("#7160e8");
         }
 
         private void Window_Deactivated(object sender, EventArgs e)

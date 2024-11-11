@@ -32,11 +32,11 @@ namespace Compilador_AAA.Traductor
                 if (_variables[println.Content].Value != null)
                     TranslatorView._print.Add(EvaluateExpression(_variables[println.Content].Value).ToString());
                 else
-                    TranslatorView.HandleError($"La variable '{println.Content}' no está inicializada.", println.StartLine, "SIN014");
+                    TranslatorView.HandleError($"La variable '{println.Content}' no está inicializada.", println.StartLine, "SEM014");
             }
             else
             {
-                TranslatorView.HandleError($"La variable '{println.Content}' no existe.", println.StartLine, "SIN014");
+                TranslatorView.HandleError($"La variable '{println.Content}' no existe.", println.StartLine, "SEM014");
             }
         }
 
@@ -54,6 +54,7 @@ namespace Compilador_AAA.Traductor
                 child.Accept(this);
             }
         }
+        public bool? Visit(BooleanLiteral booleanLiteral) { return booleanLiteral.Value; }
         public int Visit(IntegerLiteral integerLiteral) { return integerLiteral.Value; }
         public void Visit(StringLiteral stringLiteral) { /* Implementar según sea necesario */ }
         public double Visit(DoubleLiteral doubleLiteral) { return doubleLiteral.Value; }
@@ -123,9 +124,8 @@ namespace Compilador_AAA.Traductor
                         {
                             if (exprGotDouble || varGotDouble)
                             {
-                                TranslatorView.HandleError("No se puede convertir el tipo 'double' en 'int'.", identifier.StartLine, "SIN014");
-                                exprGotDouble = false;
-                                varGotDouble = false;
+                                TranslatorView.HandleError("No se puede convertir el tipo 'double' en 'int'.", identifier.StartLine, "SEM014");
+                                offVars();
 
                             }
                             else if (result is var res)
@@ -133,26 +133,64 @@ namespace Compilador_AAA.Traductor
                         }
                         else if (tempVar.VarType == "double")
                         {
-                            if (result is double res)
+                            if (varGotBool)
+                            {
+                                TranslatorView.HandleError("No se puede convertir el tipo 'double' en 'double'.", identifier.StartLine, "SEM014");
+                                offVars();
+                            }
+                            else if (result is double res)
                             {
                                 _variables[identifier.ID].Value = new DoubleLiteral(Convert.ToDouble(res), identifier.StartLine);
+                                offVars();
                             }
                             else if (result is int ress)
                             {
                                 _variables[identifier.ID].Value = new DoubleLiteral(Convert.ToDouble(ress), identifier.StartLine);
+                                offVars();
                             }
 
                         }
+                        else if(tempVar.VarType == "bool")
+                        {
+                            if(result is bool res)
+                            {
+                                _variables[identifier.ID].Value = new BooleanLiteral(Convert.ToBoolean(res), identifier.StartLine);
+                                offVars();
+                            }
+                            else if(!varGotDouble)
+                            {
+                                TranslatorView.HandleError($"No se puede convertir el tipo 'int' en 'bool'.", identifier.StartLine, "SEM014");
+                                offVars();
+                            }
+                            else
+                            {
+                                TranslatorView.HandleError($"No se puede convertir el tipo 'double' en 'bool'.", identifier.StartLine, "SEM014");
+                                offVars();
+                            }
+                            offVars();
+                        }
+                        offVars();
                     }
                     else
                     {
                         EvaluateExpression(identifier.Assignment.Value);
                         if (_variables[identifier.ID].VarType == "int" && identifier.Assignment.Value.Kind != NodeType.IntegerLiteral)
                         {
-                            TranslatorView.HandleError($"No se puede convertir el tipo '{identifier.Assignment.Value.Kind}' en 'int'.", identifier.StartLine, "SIN014");
-                            varGotDouble = false;
+                            TranslatorView.HandleError($"No se puede convertir el tipo '{identifier.Assignment.Value.Kind}' en 'int'.", identifier.StartLine, "SEM014");
+                            offVars();
+                        }
+                        else if (_variables[identifier.ID].VarType == "double" && (identifier.Assignment.Value.Kind != NodeType.IntegerLiteral|| identifier.Assignment.Value.Kind != NodeType.IntegerLiteral))
+                        {
+                            TranslatorView.HandleError($"No se puede convertir el tipo '{identifier.Assignment.Value.Kind}' en 'double'.", identifier.StartLine, "SEM020");
+                            offVars();
+                        }
+                        else if(_variables[identifier.ID].VarType == "bool" && identifier.Assignment.Value.Kind != NodeType.BooleanLiteral)
+                        {
+                            TranslatorView.HandleError($"Tipo incorrecto para la variable 'bool''{identifier.Assignment.Value.Kind}' en 'double'.", identifier.StartLine, "SEM020");
+                            offVars();
                         }
                         _variables[identifier.ID].Value = identifier.Assignment.Value;
+                        offVars();
                     }
 
                 }
@@ -174,10 +212,14 @@ namespace Compilador_AAA.Traductor
                         {
                             if (exprGotDouble || varGotDouble)
                             {
-                                TranslatorView.HandleError("No se puede convertir el tipo 'double' en 'int'.", varDeclaration.StartLine, "SIN014");
-                                exprGotDouble = false;
-                                varGotDouble = false;
+                                TranslatorView.HandleError("No se puede convertir el tipo 'double' en 'int'.", varDeclaration.StartLine, "SEM014");
+                                offVars();
 
+                            }
+                            else if(varGotBool)
+                            {
+                                TranslatorView.HandleError("No se puede convertir el tipo 'bool' en 'int'.", varDeclaration.StartLine, "SEM014");
+                                offVars();
                             }
                             else if (result is var res)
                                 _variables[varDeclaration.Identifier.ID].Value = new IntegerLiteral(Convert.ToInt32(res), varDeclaration.StartLine);
@@ -185,27 +227,78 @@ namespace Compilador_AAA.Traductor
                         }
                         else if (varDeclaration.VarType == "double")
                         {
-                            if (result is double res)
+                            if (varGotBool)
+                            {
+                                TranslatorView.HandleError("No se puede convertir el tipo 'bool' en 'double'.", varDeclaration.StartLine, "SEM014");
+                                offVars();
+                            }
+                            else if (result is double res)
                             {
                                 _variables[varDeclaration.Identifier.ID].Value = new DoubleLiteral(Convert.ToDouble(res), varDeclaration.StartLine);
+                                offVars();
                             }
                             else if (result is int ress)
                             {
                                 _variables[varDeclaration.Identifier.ID].Value = new DoubleLiteral(Convert.ToDouble(ress), varDeclaration.StartLine);
+                                offVars();
                             }
 
+                        }else if (varDeclaration.VarType == "bool")
+                        {
+                            if (result is bool)
+                            {
+                                _variables[varDeclaration.Identifier.ID].Value = new BooleanLiteral(Convert.ToBoolean(result), varDeclaration.StartLine);
+                                offVars();
+
+                            }
+                            else
+                            {
+                                TranslatorView.HandleError("No se puede convertir el tipo 'bool' en 'double'.", varDeclaration.StartLine, "SEM014");
+                                offVars();
+
+                            }
+                            offVars();
                         }
+                        offVars();
                     }
                     else
                     {
                         EvaluateExpression(varDeclaration.Assignment.Value);
-                        if (_variables[varDeclaration.Identifier.ID].VarType == "int" && varGotDouble)
+                        if (_variables[varDeclaration.Identifier.ID].VarType == "int" )
                         {
-                            TranslatorView.HandleError($"No se puede convertir el tipo 'double' en 'int'.", varDeclaration.StartLine, "SIN014");
-                            varGotDouble = false;
+                            if (varGotBool)
+                            {
+                                TranslatorView.HandleError($"No se puede convertir el tipo 'bool' en 'int'.", varDeclaration.StartLine, "SEM014");
+                                offVars();
+                            }
+                            else if(varGotDouble)
+                            {
+                                TranslatorView.HandleError($"No se puede convertir el tipo 'double' en 'int'.", varDeclaration.StartLine, "SEM019");
+                                offVars();
+                            }
+                        }else if (_variables[varDeclaration.Identifier.ID].VarType == "double")
+                        {
+                            if (varGotBool)
+                            {
+                                TranslatorView.HandleError($"No se puede convertir el tipo 'bool' en 'double'.", varDeclaration.StartLine, "SEM014");
+                                offVars();
+                            }
                         }
-                        else
+                        else if (_variables[varDeclaration.Identifier.ID].VarType == "bool")
+                        {
+                            if (varGotDouble)
+                            {
+                                TranslatorView.HandleError($"No se puede convertir el tipo 'double' en 'bool'.", varDeclaration.StartLine, "SEM014");
+                                offVars();
+                            }
+                            else if(varGotInt)
+                            {
+                                TranslatorView.HandleError($"No se puede convertir el tipo 'int' en 'bool'.", varDeclaration.StartLine, "SEM014");
+                                offVars();
+                            }
+                        }
                             _variables[varDeclaration.Identifier.ID].Value = varDeclaration.Assignment.Value;
+                        offVars();
                     }
                 }
             }
@@ -217,12 +310,18 @@ namespace Compilador_AAA.Traductor
 
 
         }
+        private void offVars()
+        {
+            varGotDouble = false;
+            varGotBool = false;
+            varGotInt = false;
+        }
         private object HandleStringOperation(object leftValue, object rightValue, string operatorSymbol, int line)
         {
             // Manejo específico para operaciones con strings
             if (leftValue is not string || rightValue is not string)
             {
-                TranslatorView.HandleError("Expresion invalida ", line, "SIN019");
+                TranslatorView.HandleError("Expresion invalida ", line, "SEM019");
                 return null;
             }
             if (operatorSymbol == "+")
@@ -230,7 +329,7 @@ namespace Compilador_AAA.Traductor
                 string pattern = "^\"(.+)\"$";
                 return "\"" + Regex.Replace(leftValue.ToString(), pattern, "$1") + Regex.Replace(rightValue.ToString(), pattern, "$1") + "\""; // Concatenar
             }
-            TranslatorView.HandleError("Operador no soportado para cadenas: ", line, "SIN017");
+            TranslatorView.HandleError("Operador no soportado para cadenas: ", line, "SEM017");
             throw new InvalidOperationException("Operador no soportado para cadenas: " + operatorSymbol);
         }
         bool exprGotDouble = false;
@@ -272,12 +371,67 @@ namespace Compilador_AAA.Traductor
                 case "/":
                     if (rightDouble == 0)
                     {
-                        TranslatorView.HandleError("No se puede dividir por cero.", binaryExpr.StartLine, "SIN016");
+                        TranslatorView.HandleError("No se puede dividir por cero.", binaryExpr.StartLine, "SEM016");
                         return null;
                     }
                     return leftDouble / rightDouble; // Siempre devuelve double
                 default:
-                    throw new InvalidOperationException("Operador no soportado: " + binaryExpr.Operator);
+                    TranslatorView.HandleError("Operador no soportado: " + binaryExpr.Operator, binaryExpr.StartLine, "SEM016");
+                    return null;
+            }
+        }
+        public void Visit(IfStatement ifStatement)
+        {
+            bool? done = null;
+            // Lógica para manejar el if statement
+            if (ifStatement.Condition!= null)
+            {
+                done = Visit((ConditionExpr)ifStatement.Condition);
+            }
+            
+            if (done != null && done== true)
+            {
+                foreach (var stmt in ifStatement.ThenBranch)
+                {
+                    stmt.Accept(this);
+                }
+            }else if (ifStatement.ElseBranch != null)
+            {
+                foreach (var stmt in ifStatement.ElseBranch)
+                {
+                    stmt.Accept(this);
+                }
+            }
+        }
+        public bool? Visit(ConditionExpr conditionExpr)
+        {
+            var leftValue = EvaluateExpression(conditionExpr.Left);
+            var rightValue = EvaluateExpression(conditionExpr.Right);
+            if(leftValue == null || rightValue== null)
+            {
+                return null;
+            }
+            switch (conditionExpr.Operator)
+            {
+                case "==":
+                    return leftValue.Equals(rightValue);
+                case "!=":
+                    return !leftValue.Equals(rightValue);
+                case ">":
+                    return Convert.ToDouble(leftValue) > Convert.ToDouble(rightValue);
+                case "<":
+                    return Convert.ToDouble(leftValue) < Convert.ToDouble(rightValue);
+                case ">=":
+                    return Convert.ToDouble(leftValue) >= Convert.ToDouble(rightValue);
+                case "<=":
+                    return Convert.ToDouble(leftValue) <= Convert.ToDouble(rightValue);
+                case "||":
+                    return Convert.ToBoolean(leftValue) || Convert.ToBoolean(rightValue);
+                case "&&":
+                    return Convert.ToBoolean(leftValue) && Convert.ToBoolean(rightValue);
+                default:
+                    TranslatorView.HandleError("Operador no soportado: " + conditionExpr.Operator, conditionExpr.StartLine, "SEM014");
+                    return null;
             }
         }
         private bool IsInteger(object value)
@@ -287,18 +441,24 @@ namespace Compilador_AAA.Traductor
 
 
         bool varGotDouble = false;
+        bool varGotBool = false;
+        bool varGotInt = false;
         private object EvaluateExpression(Expr expression)
         {
-            if (expression != null)
+            if (expression != null) 
             {
                 switch (expression.Kind)
                 {
                     case NodeType.IntegerLiteral:
+                        varGotInt = true;
                         return ((IntegerLiteral)expression).Value;
                     case NodeType.DoubleLiteral:
                         return ((DoubleLiteral)expression).Value;
                     case NodeType.StringLiteral:
                         return ((StringLiteral)expression).Value;
+                    case NodeType.BooleanLiteral:
+                        varGotBool = true;
+                        return ((BooleanLiteral)expression).Value;
                     case NodeType.Identifier:
                         // Aquí deberías manejar la recuperación del valor de la variable
                         var identifier = (Identifier)expression;
@@ -307,25 +467,32 @@ namespace Compilador_AAA.Traductor
                             if (_variables[identifier.ID].VarType == "double")
                             {
                                 varGotDouble = true;
+                            }else if (_variables[identifier.ID].VarType == "int")
+                            {
+                                varGotInt= true;
+                            }else if(_variables[identifier.ID].VarType == "bool")
+                            {
+                                varGotBool = true;
                             }
                         }
-                        else if (!_variables.ContainsKey(identifier.ID))
+                        if (!_variables.ContainsKey(identifier.ID))
                         {
-                            TranslatorView.HandleError($"La variable '{identifier.ID}' no existe.", expression.StartLine, "SIN014");
+                            TranslatorView.HandleError($"La variable '{identifier.ID}' no existe.", expression.StartLine, "SEM014");
                             return null;
                         }
                         else if (_variables[identifier.ID].Value == null)
                         {
-                            TranslatorView.HandleError($"La variable '{identifier.ID}' no está inicializada.", expression.StartLine, "SIN014");
+                            TranslatorView.HandleError($"La variable '{identifier.ID}' no está inicializada.", expression.StartLine, "SEM014");
                             return null;
                         }
 
-                        // Supongamos que tienes un diccionario que almacena los valores de las variables
                         return EvaluateExpression(GetVariableValue(identifier.ID));
                     case NodeType.BinaryExpr:
-                        return Visit((BinaryExpr)expression); // Recursivamente evalúa expresiones binarias
-                                                              // Agregar más tipos de expresiones según sea necesario
+                        return Visit((BinaryExpr)expression);
+                    case NodeType.ConditionExpr:
+                        return Visit((ConditionExpr)expression);
                     default:
+                        TranslatorView.HandleError($"Expresion no implementada", expression.StartLine, "SEM014");
                         return null;
                 }
             }
@@ -356,42 +523,7 @@ namespace Compilador_AAA.Traductor
                 arg.Accept(this);
             }
         }
-        //public bool EvaluateCondition(ConditionExpr condition)
-        //{
-        //    var leftValue = EvaluateExpression(condition.Left);
-        //    var rightValue = EvaluateExpression(condition.Right);
-
-        //    switch (condition.Operator)
-        //    {
-        //        case "==":
-        //            return leftValue.Equals(rightValue);
-        //        case "!=":
-        //            return !leftValue.Equals(rightValue);
-        //        case ">":
-        //            return Convert.ToDouble(leftValue) > Convert.ToDouble(rightValue);
-        //        case "<":
-        //            return Convert.ToDouble(leftValue) < Convert.ToDouble(rightValue);
-        //        default:
-        //            throw new InvalidOperationException("Operador no soportado: " + condition.Operator);
-        //    }
-        //}
-
-        public void Visit(IfStatement ifStatement)
-        {
-            //// Lógica para manejar el if statement
-            //ifStatement.Condition.Accept(this);
-            //foreach (var stmt in ifStatement.ThenBranch)
-            //{
-            //    stmt.Accept(this);
-            //}
-            //if (ifStatement.ElseBranch != null)
-            //{
-            //    foreach (var stmt in ifStatement.ElseBranch)
-            //    {
-            //        stmt.Accept(this);
-            //    }
-            //}
-        }
+       
         // Implementar otros métodos de visita según sea necesario
         public void Visit(MemberExpr memberExpr) { /* Implementar según sea necesario */ }
 
@@ -399,9 +531,6 @@ namespace Compilador_AAA.Traductor
         public void Visit(Property property) { /* Implementar según sea necesario */ }
         public void Visit(ObjectLiteral objectLiteral) { /* Implementar según sea necesario */ }
 
-        public void Visit(ConditionExpr conditionExpr)
-        {
-
-        }
+        
     }
 }
