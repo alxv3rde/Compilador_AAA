@@ -60,6 +60,10 @@ namespace Compilador_AAA.Traductor
                 Advance();
                 return ParsePrintln(); // Agregar aquí
             }
+            else if (Check(TokenType.Keyword, new[] { "while" }))
+            {
+                return ParseWhileStatement(); // Agregar aquí
+            }
             else if (Check(TokenType.Keyword, new[] { "if" }))
             {
                 return ParseIfStatement(); // Agregar aquí
@@ -202,7 +206,35 @@ namespace Compilador_AAA.Traductor
 
             return left; // Si no hay operador, retorna la expresión izquierda
         }
+        private WhileStatement ParseWhileStatement()
+        {
+            Consume(TokenType.Keyword, "Se esperaba 'while'", "SIN010");
+            Consume(TokenType.OpenParen, "Se esperaba '(' después de 'while'", "SIN011");
 
+            Expr condition = (Expr)ParseLogicOR(); // Analiza la condición
+
+            Consume(TokenType.CloseParen, "Se esperaba ')' después de la condición", "SIN012");
+            Consume(TokenType.OpenBrace, "Se esperaba '{' después de la condición", "SIN013");
+
+            List<Stmt> thenBranch = new List<Stmt>();
+            while (!Check(TokenType.CloseBrace) && !IsAtEndOfFile())
+            {
+                var statement = ParseStatement();
+                if (statement != null)
+                {
+                    thenBranch.Add(statement);
+                }
+                else
+                {
+                    AdvanceToNextLine();
+                }
+            }
+
+            Consume(TokenType.CloseBrace, "Se esperaba '}' al final del bloque 'while'", "SIN014");
+            
+
+            return new WhileStatement(condition, thenBranch, _currentLine); // Retorna el if statement
+        }
         private IfStatement ParseIfStatement()
         {
             Consume(TokenType.Keyword, "Se esperaba 'if'", "SIN010");
