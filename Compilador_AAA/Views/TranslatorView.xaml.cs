@@ -75,7 +75,7 @@ namespace Compilador_AAA.Views
                 string concatenatedString = string.Join("\n", _print); // Usar "\n" como delimitador
 
                 // Mostrar el resultado en un MessageBox
-                MessageBox.Show(concatenatedString, "Resultados");
+                MessageBox.Show(concatenatedString, "Consola");
             }
         }
 

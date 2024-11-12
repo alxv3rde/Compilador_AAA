@@ -384,7 +384,7 @@ namespace Compilador_AAA.Traductor
         {
             bool? done = null;
             // Lógica para manejar el if statement
-            if (ifStatement.Condition!= null)
+            if (ifStatement.Condition!= null && ifStatement.Condition is ConditionExpr)
             {
                 done = Visit((ConditionExpr)ifStatement.Condition);
             }
@@ -395,7 +395,7 @@ namespace Compilador_AAA.Traductor
                 {
                     stmt.Accept(this);
                 }
-            }else if (ifStatement.ElseBranch != null)
+            }else
             {
                 foreach (var stmt in ifStatement.ElseBranch)
                 {
@@ -453,7 +453,9 @@ namespace Compilador_AAA.Traductor
                         varGotInt = true;
                         return ((IntegerLiteral)expression).Value;
                     case NodeType.DoubleLiteral:
+                        varGotDouble = true;
                         return ((DoubleLiteral)expression).Value;
+                        
                     case NodeType.StringLiteral:
                         return ((StringLiteral)expression).Value;
                     case NodeType.BooleanLiteral:

@@ -228,8 +228,28 @@ namespace Compilador_AAA.Traductor
             }
 
             Consume(TokenType.CloseBrace, "Se esperaba '}' al final del bloque 'if'", "SIN014");
+            Token el = AdvancePeek();
+            List<Stmt> elseBranch = new List<Stmt>();
+            if (el.Type == TokenType.Keyword && (el.Value == "else" ))
+            {
+                Advance();  // Consume el operador
+                Consume(TokenType.OpenBrace, "Se esperaba '{' después del else", "SIN013");
+                while (!Check(TokenType.CloseBrace) && !IsAtEndOfFile())
+                {
+                    var statement = ParseStatement();
+                    if (statement != null)
+                    {
+                        elseBranch.Add(statement);
+                    }
+                    else
+                    {
+                        AdvanceToNextLine();
+                    }
+                }
+                Consume(TokenType.CloseBrace, "Se esperaba '}' al final del bloque 'if'", "SIN014");
+            }
 
-            return new IfStatement(condition, thenBranch, null, _currentLine); // Retorna el if statement
+            return new IfStatement(condition, thenBranch, elseBranch, _currentLine); // Retorna el if statement
         }
 
         private VarDeclaration ParseVarDeclaration(bool constant)
